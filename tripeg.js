@@ -5,6 +5,16 @@
   var pad = 15;
 
 
+  var colorNames = {
+    'red' : '#FF0000',
+    'blue' : '#0000FF',
+    'yellow' : '#FFFF00'
+  }
+
+  colors = ['yellow', 'yellow', 'yellow', 'yellow',
+            'red', 'red', 'red', 'red', 'red',
+            'blue', 'blue', 'blue', 'blue', 'blue'];
+
   var d = 50;
   var r = 18;
   var g = d - 2*r;
@@ -21,7 +31,21 @@
                             [pad + triangle_side_length, pad + f * triangle_side_length],
                             [pad,  pad + f * triangle_side_length] ];
 
-  var hole = [4,3];
+  var pegs = [];
+
+  var hole = [0,0];
+
+  function Peg(i,j, color) {
+    return {
+      'i' : i,
+      'j' : j,
+      'color' : color,
+      'draw' : function(ctx) {
+        var c = peg_center(this.i, this.j);
+        draw_peg(ctx, c, r, this.color);
+      }
+    };
+  }
 
   function peg_center(i,j) {
     return [ peg_base[0] + j * d - i * d / 2,
@@ -65,13 +89,8 @@
     }
 
     // draw the pegs
-    for (i=0; i<N; ++i) {
-      for (j=0; j<=i; ++j) {
-        if (i !== hole[0] || j !== hole[1]) {
-          c = peg_center(i,j);
-          draw_peg(ctx, c, r, "#FF0000");
-        }
-      }
+    for (i=0; i<pegs.length; ++i) {
+      pegs[i].draw(ctx);
     }
 
     //draw_peg(ctx, [100,100], 20, '#FF0000');
@@ -79,6 +98,18 @@
 
 
   $(document).ready(function() {
+
+    for (i=0; i<N; ++i) {
+      for (j=0; j<=i; ++j) {
+        if (i !== hole[0] || j !== hole[1]) {
+          k = Math.floor(colors.length * Math.random())
+          color = colorNames[ colors[k] ];
+          colors.splice(k,1);
+          pegs.push( Peg(i,j,color) );
+        }
+      }
+    }
+
     var ctx = $('#thecanvas').attr('width', canvas_width);
     var ctx = $('#thecanvas').attr('height', canvas_height);
     var ctx = $('#thecanvas')[0].getContext("2d");
