@@ -81,7 +81,7 @@
       'is_valid' : function() {
         return (this.i < N && this.j <= this.i);
       },
-      'potential_moves' : function() {
+      'possible_moves' : function() {
          var moves = [],
              i, dir, dest;
          for (i=0; i<six_directions.length; ++i) {
@@ -114,6 +114,9 @@
       'dest_j' : undefined,
       'interpf' : undefined,
       'color' : color,
+      'clone' : function() {
+        return Peg(this.i, this.j, this.color);
+      },
       'draw' : function() {
         var c = peg_center(this.i, this.j);
         if (this.moving) {
@@ -126,29 +129,73 @@
     };
   }
 
-  function Board() {
-    var pegs = []
+  function Board(pegs) {
+
     var row;
-    for (i=0; i<N; ++i) {
-      row = [];
-      for (j=0; j<=i; ++j) {
-        if (i !== hole[0] || j !== hole[1]) {
-          k = Math.floor(colors.length * Math.random())
-          color = colorNames[ colors[k] ];
-          colors.splice(k,1);
-          row.push( Peg(i,j,color) );
+    if (pegs === undefined) {
+      pegs = [];
+      for (i=0; i<N; ++i) {
+        row = [];
+        for (j=0; j<=i; ++j) {
+          if (i !== hole[0] || j !== hole[1]) {
+            k = Math.floor(colors.length * Math.random())
+            color = colorNames[ colors[k] ];
+            colors.splice(k,1);
+            row.push( Peg(i,j,color) );
+          }
         }
+        pegs.push(row);
       }
-      pegs.push(row);
     }
 
     return {
       'pegs' : pegs,
 
+      'move' : function(move) {
+        this.pegs[move.dest.i][move.dest.j] = this.pegs[move.jumper.i][move.jumper.j]
+        this.pegs[move.jumper.i][move.jumper.j] = undefined;
+        this.pegs[move.jumpee.i][move.jumpee.j] = undefined;
+      },
+
+      'clone' : function(board) {
+        var pegs = [], i, j;
+        for (i=0; i<N; ++i) {
+          pegs[i] = [];
+          for (j=0; j<=i; ++j) {
+            if (board.pegs[i][j] !== undefined) {
+              pegs[i].push( board.pegs[i][j].clone() );
+            } else {
+              pegs[i].push( undefined );
+            }
+          }
+        }
+        return Board(pegs);
+      },
+
+      'containsPegInPosition' : function(position) {
+        reutrn (this.pegs[position.i][position.j] !== undefined);
+      },
+
       'move_allowed' : function(move) {
         return (this.containsPegInPosition(move.jumper) &&
                 this.containsPegInPosition(move.jumpee) &&
                 !this.containsPegInPosition(move.destination));
+      },
+
+      'possible_moves' : function() {
+        var moves = [],
+            i, j;
+        for (i=0; i<N; ++i) {
+          for (j=0; j<=i; ++j) {
+            var moves_this_pos = Position(i,j).possible_moves();
+            for (k=0; k<moves_this_pos.length; ++k) {
+              if (this.move_allowed(moves_this_pos[k])) {
+                moves.push(moves_this_pos[k]);
+              }
+            }
+          }
+        }
+        
       },
 
       'draw' : function() {
@@ -224,13 +271,13 @@
     $counter.text(frameno);
   }
 
-  function Move(jumper_i,jumper_j, jumpee_i, jumpee_j, dest_i, dest_j) {
+  function Move(jumper, jumpee, dest) {
     return {
       'pre' : function() {
-        board.pegs[jumper_i][jumper_j].moving  = 1;
-        board.pegs[jumper_i][jumper_j].interpf = 0;
-        board.pegs[jumper_i][jumper_j].dest_i  = dest_i;
-        board.pegs[jumper_i][jumper_j].dest_j  = dest_j;
+        board.pegs[jumper.i][jumper.j].moving  = 1;
+        board.pegs[jumper.i][jumper.j].interpf = 0;
+        board.pegs[jumper.i][jumper.j].dest_i  = dest.i;
+        board.pegs[jumper.i][jumper.j].dest_j  = dest.j;
       },
       'step' : function(n) {
         var move = this;
@@ -238,7 +285,7 @@
         if (n < stepsPerMove) {
           setTimeout(function() {
             n += 1;
-            board.pegs[jumper_i][jumper_j].interpf = n / stepsPerMove
+            board.pegs[jumper.i][jumper.j].interpf = n / stepsPerMove;
             requestAnimationFrame(function() {
               draw();
               move.step(n);
@@ -249,12 +296,12 @@
         }
       },
       'post' : function() {
-        var peg = board.pegs[jumper_i][jumper_j];
+        var peg = board.pegs[jumper.i][jumper.j];
         peg.moving = false;
-        peg.i = board.pegs[jumper_i][jumper_j].dest_i;
-        peg.j = board.pegs[jumper_i][jumper_j].dest_j;
-        board.pegs[dest_i][dest_j] = peg;
-        board.pegs[jumpee_i][jumpee_j] = undefined;
+        peg.i = board.pegs[jumper.i][jumper.j].dest_i;
+        peg.j = board.pegs[jumper.i][jumper.j].dest_j;
+        board.pegs[dest.i][dest.j] = peg;
+        board.pegs[jumpee.i][jumpee.j] = undefined;
         requestAnimationFrame(function() { draw(); });
       }
     }
@@ -283,15 +330,15 @@
     $('#thecanvas').attr('height', canvas_height);
     ctx = $('#thecanvas')[0].getContext("2d");
 
-    moves.push(Move(2,0, 1,0, 0,0));
-    moves.push(Move(4,0, 3,0, 2,0));
-    moves.push(Move(4,2, 4,1, 4,0));
-    moves.push(Move(4,4, 4,3, 4,2));
-    moves.push(Move(2,2, 3,3, 4,4));
-    moves.push(Move(0,0, 1,1, 2,2));
-    moves.push(Move(2,1, 3,2, 4,3));
-    moves.push(Move(4,3, 4,2, 4,1));
-    moves.push(Move(2,0, 3,1, 4,2));
+    moves.push(Move(Position(2,0), Position(1,0), Position(0,0)));
+    moves.push(Move(Position(4,0), Position(3,0), Position(2,0)));
+    moves.push(Move(Position(4,2), Position(4,1), Position(4,0)));
+    moves.push(Move(Position(4,4), Position(4,3), Position(4,2)));
+    moves.push(Move(Position(2,2), Position(3,3), Position(4,4)));
+    moves.push(Move(Position(0,0), Position(1,1), Position(2,2)));
+    moves.push(Move(Position(2,1), Position(3,2), Position(4,3)));
+    moves.push(Move(Position(4,3), Position(4,2), Position(4,1)));
+    moves.push(Move(Position(2,0), Position(3,1), Position(4,2)));
     draw();
     startMove();
   });
