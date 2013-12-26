@@ -6,6 +6,8 @@
   var frameDelayMS = 25; // ms delay between frames
   var stepsPerMove = 20; // number of steps per move
 
+  var ctx;
+
   var interpf = 0.0;
 
   var colorNames = {
@@ -36,7 +38,7 @@
                             [pad + triangle_side_length, pad + f * triangle_side_length],
                             [pad,  pad + f * triangle_side_length] ];
 
-  var pegs = [];
+  var board;
 
   var hole = [0,0];
 
@@ -48,17 +50,64 @@
     return {
       'i' : i,
       'j' : j,
+      'moving' : false,
+      'dest_i' : undefined,
+      'dest_j' : undefined,
+      'interpf' : undefined,
       'color' : color,
-      'draw' : function(ctx, dest_i, dest_j, factor) {
+      'draw' : function() {
         var c = peg_center(this.i, this.j);
-        if (factor !== undefined) {
-          var dest_c = peg_center(dest_i, dest_j);
-          c[0] = linear_interpolate(factor, c[0], dest_c[0]);
-          c[1] = linear_interpolate(factor, c[1], dest_c[1]);
+        if (this.moving) {
+          var dest_c = peg_center(this.dest_i, this.dest_j);
+          c[0] = linear_interpolate(this.interpf, c[0], dest_c[0]);
+          c[1] = linear_interpolate(this.interpf, c[1], dest_c[1]);
         }
-        draw_peg(ctx, c, r, this.color);
+        draw_peg(c, r, this.color);
       }
     };
+  }
+
+  function Board() {
+    var pegs = []
+    var row;
+    for (i=0; i<N; ++i) {
+      row = [];
+      for (j=0; j<=i; ++j) {
+        if (i !== hole[0] || j !== hole[1]) {
+          k = Math.floor(colors.length * Math.random())
+          color = colorNames[ colors[k] ];
+          colors.splice(k,1);
+          row.push( Peg(i,j,color) );
+        }
+      }
+      pegs.push(row);
+    }
+
+    return {
+      'pegs' : pegs,
+
+      'draw' : function() {
+        var i, j, peg,
+            moving_peg = undefined;
+        for (i=0; i<N; ++i) {
+          for (j=0; j<=i; ++j) {
+            peg = pegs[i][j];
+            if (peg !== undefined) {
+              if (peg.moving) {
+                moving_peg = peg;
+              } else {
+                peg.draw();
+              }
+            }
+          }
+        }
+        if (moving_peg !== undefined) {
+          moving_peg.draw(moving_peg.dest_i, moving_peg.dest_j, moving_peg.interpf);
+        }
+      }
+
+    };
+
   }
 
   function peg_center(i,j) {
@@ -66,7 +115,7 @@
              peg_base[1] + i * f * d ];
   }
 
-  function draw_peg(ctx, center, radius, color) {
+  function draw_peg(center, radius, color) {
     ctx.beginPath();
     ctx.arc(center[0], center[1], radius, 0, 2 * Math.PI);
     ctx.fillStyle = color;
@@ -76,7 +125,7 @@
     ctx.stroke();
   }
 
-  function draw_polygon(ctx, vertices) {
+  function draw_polygon(vertices) {
     var i;
     ctx.beginPath();
     ctx.moveTo(vertices[0][0], vertices[0][1]);
@@ -87,31 +136,22 @@
     ctx.closePath();
   }
 
-  function draw(ctx) {
+  function draw() {
     var i, j;
     ctx.fillStyle="#DDDDDD";
     ctx.fillRect(0,0,canvas_width,canvas_height);
     ctx.fillStyle="#FBA16C";
-    draw_polygon(ctx, triangle_vertices);
+    draw_polygon(triangle_vertices);
 
     // draw the holes
     for (i=0; i<N; ++i) {
       for (j=0; j<=i; ++j) {
           c = peg_center(i,j);
-          draw_peg(ctx, c, 8, "#000000");
+          draw_peg(c, 8, "#000000");
       }
     }
 
-    // draw the pegs
-    k = undefined
-    for (i=0; i<pegs.length; ++i) {
-      if (pegs[i].i == 2 && pegs[i].j == 0) {
-        k = i;
-      } else {
-        pegs[i].draw(ctx);
-      }
-    } 
-   pegs[k].draw(ctx, 0, 0, interpf);
+    board.draw();
 
     $counter = $('#counter');
     ++frameno;
@@ -119,40 +159,82 @@
     $counter.text(frameno);
   }
 
-  function domove(ctx, n) {
+  function Move(i,j, dest_i, dest_j) {
+    return {
+      'pre' : function() {
+        board.pegs[i][j].moving  = 1;
+        board.pegs[i][j].interpf = 0;
+        board.pegs[i][j].dest_i  = dest_i;
+        board.pegs[i][j].dest_j  = dest_j;
+      },
+      'step' : function(n) {
+        var move = this;
+        if (n === undefined) { n = 0; }
+        if (n < stepsPerMove) {
+          setTimeout(function() {
+            n += 1;
+            board.pegs[i][j].interpf = n / stepsPerMove
+            requestAnimationFrame(function() {
+              draw();
+              move.step(n);
+            });
+          }, frameDelayMS);
+        } else {
+          finishMove();
+        }
+      },
+      'post' : function() {
+        board.pegs[i][j].moving = false;
+        board.pegs[i][j].i = board.pegs[i][j].dest_i;
+        board.pegs[i][j].j = board.pegs[i][j].dest_j;
+      }
+    }
+  }
+
+  var moves = [];
+  var move;
+
+  function startMove() {
+    if (moves.length > 0) {
+      move = moves.shift();
+      move.pre();
+      move.step();
+    }
+  }
+  function finishMove() {
+    move.post();
+    startMove();
+  }
+
+  function domove(n) {
     if (n === undefined) { n = 0; }
     if (n < stepsPerMove) {
       setTimeout(function() {
         n += 1;
-        interpf = n / stepsPerMove
+        board.pegs[2][0].interpf = n / stepsPerMove
         requestAnimationFrame(function() {
-          draw(ctx);
-          domove(ctx, n);
-        })
+          draw();
+          domove(n);
+        });
       }, frameDelayMS);
+    } else {
+      board.pegs[2][0].moving = false;
     }
   }
 
   $(document).ready(function() {
 
-    // create the pegs
-    for (i=0; i<N; ++i) {
-      for (j=0; j<=i; ++j) {
-        if (i !== hole[0] || j !== hole[1]) {
-          k = Math.floor(colors.length * Math.random())
-          color = colorNames[ colors[k] ];
-          colors.splice(k,1);
-          pegs.push( Peg(i,j,color) );
-        }
-      }
-    }
+    board = Board();
 
-    var ctx = $('#thecanvas').attr('width', canvas_width);
-    var ctx = $('#thecanvas').attr('height', canvas_height);
-    var ctx = $('#thecanvas')[0].getContext("2d");
+    $('#thecanvas').attr('width', canvas_width);
+    $('#thecanvas').attr('height', canvas_height);
+    ctx = $('#thecanvas')[0].getContext("2d");
 
-    draw(ctx);
-    domove(ctx);
+    moves.push(Move(2,0, 0,0));
+    moves.push(Move(4,0, 2,0));
+    moves.push(Move(4,2, 4,0));
+    draw();
+    startMove();
   });
 
 }(jQuery));
