@@ -73,8 +73,8 @@
          }
          return moves;
       }
-    }
-  }
+    };
+  };
 
   var Move = function(jumper, jumpee, dest) {
     return {
@@ -86,6 +86,9 @@
       }
     };
   };
+
+  var Board = function() {
+  }
 
   window.tripeg_logic = {
       'Direction'      : Direction,

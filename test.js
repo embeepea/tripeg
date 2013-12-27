@@ -170,68 +170,96 @@ describe("Tripeg Logic", function () {
         });
 
         describe("possible_moves method", function() {
-            it("Position(0,0) should have 2 possible moves (N=5)", function() {
-                var moves = map(Position(0,0).possible_moves(), function(x) { return x.toString(); });
-                expect(moves.length).toBe(2);
-                expect(array_contains(moves, "(0,0) -> (1,0) -> (2,0)")).toBe(true);
-                expect(array_contains(moves, "(0,0) -> (1,1) -> (2,2)")).toBe(true);
+            describe("with N=5", function() {
+                it("Position(0,0) should have 2 possible moves", function() {
+                    var moves = map(Position(0,0).possible_moves(), function(x) { return x.toString(); });
+                    expect(moves.length).toBe(2);
+                    expect(array_contains(moves, "(0,0) -> (1,0) -> (2,0)")).toBe(true);
+                    expect(array_contains(moves, "(0,0) -> (1,1) -> (2,2)")).toBe(true);
+                });
+                it("Position(1,0) should have 2 possible moves", function() {
+                    var moves = map(Position(1,0).possible_moves(), function(x) { return x.toString(); });
+                    expect(moves.length).toBe(2);
+                    expect(array_contains(moves, "(1,0) -> (2,0) -> (3,0)")).toBe(true);
+                    expect(array_contains(moves, "(1,0) -> (2,1) -> (3,2)")).toBe(true);
+                });
+                it("Position(2,0) should have 4 possible moves", function() {
+                    var moves = map(Position(2,0).possible_moves(), function(x) { return x.toString(); });
+                    expect(moves.length).toBe(4);
+                    expect(array_contains(moves, "(2,0) -> (1,0) -> (0,0)")).toBe(true);
+                    expect(array_contains(moves, "(2,0) -> (2,1) -> (2,2)")).toBe(true);
+                    expect(array_contains(moves, "(2,0) -> (3,1) -> (4,2)")).toBe(true);
+                    expect(array_contains(moves, "(2,0) -> (3,0) -> (4,0)")).toBe(true);
+                });
+                it("Position(2,1) should have 2 possible moves", function() {
+                    var moves = map(Position(2,1).possible_moves(), function(x) { return x.toString(); });
+                    expect(moves.length).toBe(2);
+                    expect(array_contains(moves, "(2,1) -> (3,1) -> (4,1)")).toBe(true);
+                    expect(array_contains(moves, "(2,1) -> (3,2) -> (4,3)")).toBe(true);
+                });
+                it("Position(4,4) should have 2 possible moves", function() {
+                    var moves = map(Position(4,4).possible_moves(), function(x) { return x.toString(); });
+                    expect(moves.length).toBe(2);
+                    expect(array_contains(moves, "(4,4) -> (3,3) -> (2,2)")).toBe(true);
+                    expect(array_contains(moves, "(4,4) -> (4,3) -> (4,2)")).toBe(true);
+                });
+                it("Position(4,2) should have 4 possible moves", function() {
+                    var moves = map(Position(4,2).possible_moves(), function(x) { return x.toString(); });
+                    expect(moves.length).toBe(4);
+                    expect(array_contains(moves, "(4,2) -> (3,1) -> (2,0)")).toBe(true);
+                    expect(array_contains(moves, "(4,2) -> (3,2) -> (2,2)")).toBe(true);
+                    expect(array_contains(moves, "(4,2) -> (4,3) -> (4,4)")).toBe(true);
+                    expect(array_contains(moves, "(4,2) -> (4,1) -> (4,0)")).toBe(true);
+                });
             });
-            it("Position(1,0) should have 2 possible moves (N=5)", function() {
-                var moves = map(Position(1,0).possible_moves(), function(x) { return x.toString(); });
-                expect(moves.length).toBe(2);
-                expect(array_contains(moves, "(1,0) -> (2,0) -> (3,0)")).toBe(true);
-                expect(array_contains(moves, "(1,0) -> (2,1) -> (3,2)")).toBe(true);
+
+            describe("with N=4", function() {
+                it("Position(0,0) should have 2 possible moves", function() {
+                    setN(4);
+                    var moves = map(Position(0,0).possible_moves(), function(x) { return x.toString(); });
+                    expect(moves.length).toBe(2);
+                    expect(array_contains(moves, "(0,0) -> (1,0) -> (2,0)")).toBe(true);
+                    expect(array_contains(moves, "(0,0) -> (1,1) -> (2,2)")).toBe(true);
+                });
+                it("Position(1,0) should have 2 possible moves", function() {
+                    setN(4);
+                    var moves = map(Position(1,0).possible_moves(), function(x) { return x.toString(); });
+                    expect(moves.length).toBe(2);
+                    expect(array_contains(moves, "(1,0) -> (2,0) -> (3,0)")).toBe(true);
+                    expect(array_contains(moves, "(1,0) -> (2,1) -> (3,2)")).toBe(true);
+                });
+                it("Position(2,0) should have 2 possible moves", function() {
+                    setN(4);
+                    var moves = map(Position(2,0).possible_moves(), function(x) { return x.toString(); });
+                    expect(moves.length).toBe(2);
+                    expect(array_contains(moves, "(2,0) -> (1,0) -> (0,0)")).toBe(true);
+                    expect(array_contains(moves, "(2,0) -> (2,1) -> (2,2)")).toBe(true);
+                });
+                it("Position(2,1) should have 0 possible moves", function() {
+                    setN(4);
+                    var moves = map(Position(2,1).possible_moves(), function(x) { return x.toString(); });
+                    expect(moves.length).toBe(0);
+                });
             });
-            it("Position(2,0) should have 4 possible moves (N=5)", function() {
-                var moves = map(Position(2,0).possible_moves(), function(x) { return x.toString(); });
-                expect(moves.length).toBe(4);
-                expect(array_contains(moves, "(2,0) -> (1,0) -> (0,0)")).toBe(true);
-                expect(array_contains(moves, "(2,0) -> (2,1) -> (2,2)")).toBe(true);
-                expect(array_contains(moves, "(2,0) -> (3,1) -> (4,2)")).toBe(true);
-                expect(array_contains(moves, "(2,0) -> (3,0) -> (4,0)")).toBe(true);
-            });
-            it("Position(2,1) should have 2 possible moves (N=5)", function() {
-                var moves = map(Position(2,1).possible_moves(), function(x) { return x.toString(); });
-                expect(moves.length).toBe(2);
-                expect(array_contains(moves, "(2,1) -> (3,1) -> (4,1)")).toBe(true);
-                expect(array_contains(moves, "(2,1) -> (3,2) -> (4,3)")).toBe(true);
-            });
-            it("Position(4,4) should have 2 possible moves (N=5)", function() {
-                var moves = map(Position(4,4).possible_moves(), function(x) { return x.toString(); });
-                console.log(moves.length);
-                console.log(moves);
-                expect(moves.length).toBe(2);
-                expect(array_contains(moves, "(4,4) -> (3,3) -> (2,2)")).toBe(true);
-                expect(array_contains(moves, "(4,4) -> (4,3) -> (4,2)")).toBe(true);
+
+
+            describe("with N=7", function() {
+                it("Position(4,2) should have 6 possible moves", function() {
+                    setN(7);
+                    var moves = map(Position(4,2).possible_moves(), function(x) { return x.toString(); });
+                    expect(moves.length).toBe(6);
+                    expect(array_contains(moves, "(4,2) -> (3,1) -> (2,0)")).toBe(true);
+                    expect(array_contains(moves, "(4,2) -> (3,2) -> (2,2)")).toBe(true);
+                    expect(array_contains(moves, "(4,2) -> (4,3) -> (4,4)")).toBe(true);
+                    expect(array_contains(moves, "(4,2) -> (5,3) -> (6,4)")).toBe(true);
+                    expect(array_contains(moves, "(4,2) -> (5,2) -> (6,2)")).toBe(true);
+                    expect(array_contains(moves, "(4,2) -> (3,2) -> (2,2)")).toBe(true);
+                });
             });
 
         });
         
     });
 
-/*
-    it("should be able to parse a img from XML and read its 'src' attribute", function () {
-        expect(image.src()).toBe(srcString);
-    });
-
-    it("should be able to parse a img from XML and read its 'anchor' attribute", function () {
-        expect(image.anchor().x()).toEqual((Point.parse(anchorString)).x());
-        expect(image.anchor().y()).toEqual((Point.parse(anchorString)).y());
-    });
-
-    it("should be able to parse a img from XML and read its 'base' attribute", function () {
-        expect(image.base().x()).toEqual((Point.parse(baseString)).x());
-        expect(image.base().y()).toEqual((Point.parse(baseString)).y());
-    });
-
-    it("should be able to parse a img from XML and read its 'position' attribute", function () {
-        expect(image.position().x()).toEqual((Point.parse(positionString)).x());
-        expect(image.position().y()).toEqual((Point.parse(positionString)).y());
-    });
-
-    it("should be able to parse a img from XML and read its 'frame' attribute", function () {
-        expect(image.frame()).toBe(frameString.toLowerCase());
-    });
-*/
 
 });
