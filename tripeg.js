@@ -1,6 +1,7 @@
 (function($) {
 
   var N = 5;
+  var numPegs = ( N * (N + 1) / 2 ) - 1;
   var f = 0.8660254037844386;
   var pad = 15;
   var frameDelayMS = 10; // ms delay between frames
@@ -157,13 +158,13 @@
         this.pegs[move.jumpee.i][move.jumpee.j] = undefined;
       },
 
-      'clone' : function(board) {
+      'clone' : function() {
         var pegs = [], i, j;
         for (i=0; i<N; ++i) {
           pegs[i] = [];
           for (j=0; j<=i; ++j) {
-            if (board.pegs[i][j] !== undefined) {
-              pegs[i].push( board.pegs[i][j].clone() );
+            if (this.pegs[i][j] !== undefined) {
+              pegs[i].push( this.pegs[i][j].clone() );
             } else {
               pegs[i].push( undefined );
             }
@@ -173,14 +174,28 @@
       },
 
       'containsPegInPosition' : function(position) {
-        reutrn (this.pegs[position.i][position.j] !== undefined);
+        return (position.i>=0 && position.i<N && position.j>=0 && position.j<=i && (this.pegs[position.i][position.j] !== undefined));
       },
 
       'move_allowed' : function(move) {
-        return (this.containsPegInPosition(move.jumper) &&
-                this.containsPegInPosition(move.jumpee) &&
-                !this.containsPegInPosition(move.destination));
+          var ans = this.containsPegInPosition(move.jumper) &&
+                    this.containsPegInPosition(move.jumpee) &&
+                    !this.containsPegInPosition(move.dest);
+        return (ans);
       },
+
+      'is_solved' : function() {
+        var n = 0;
+        for (i=0; i<N; ++i) {
+          for (j=0; j<=i; ++j) {
+            if (board.pegs[i][j] !== undefined) {
+              ++n;
+            }
+          }
+        }
+        return (n === 1)
+      },
+
 
       'possible_moves' : function() {
         var moves = [],
@@ -189,13 +204,16 @@
           for (j=0; j<=i; ++j) {
             var moves_this_pos = Position(i,j).possible_moves();
             for (k=0; k<moves_this_pos.length; ++k) {
-              if (this.move_allowed(moves_this_pos[k])) {
-                moves.push(moves_this_pos[k]);
+              var move = moves_this_pos[k];
+//console.log(move.toString());
+              if (this.move_allowed(move)) {
+console.log('pushing move ' + move.toString());
+                moves.push(move);
               }
             }
           }
         }
-        
+        return moves;
       },
 
       'draw' : function() {
@@ -273,6 +291,12 @@
 
   function Move(jumper, jumpee, dest) {
     return {
+      'toString' : function() {
+          return '(' + jumper.i + ',' + jumper.j + ') -> (' + jumpee.i + ',' + jumpee.j + ') -> (' + dest.i + ',' + dest.j +  ')';
+      },
+      'jumper' : jumper,
+      'jumpee' : jumpee,
+      'dest' : dest,
       'pre' : function() {
         board.pegs[jumper.i][jumper.j].moving  = 1;
         board.pegs[jumper.i][jumper.j].interpf = 0;
@@ -322,6 +346,29 @@
     startMove();
   }
 
+  function findMoves(board) {
+    if (board.is_solved()) {
+      return [];
+    }
+    var i,
+        possible_moves = board.possible_moves(),
+        move;
+console.log('exploring ' + possible_moves.length + ' moves');
+    for (i=0; i<possible_moves.length; ++i) {
+      move = possible_moves[i];
+console.log('  checking move ' + move.toString());
+      var b = board.clone();
+      b.move(move);
+      var moves = findMoves(b);
+      if (moves !== undefined) {
+        var answer = moves.slice(0);
+        answer.push(move);
+        return answer;
+      }
+    }
+    return undefined;
+  }
+
   $(document).ready(function() {
 
     board = Board();
@@ -329,6 +376,10 @@
     $('#thecanvas').attr('width', canvas_width);
     $('#thecanvas').attr('height', canvas_height);
     ctx = $('#thecanvas')[0].getContext("2d");
+
+    draw();
+
+//    moves = findMoves(board);
 
     moves.push(Move(Position(2,0), Position(1,0), Position(0,0)));
     moves.push(Move(Position(4,0), Position(3,0), Position(2,0)));
@@ -339,7 +390,7 @@
     moves.push(Move(Position(2,1), Position(3,2), Position(4,3)));
     moves.push(Move(Position(4,3), Position(4,2), Position(4,1)));
     moves.push(Move(Position(2,0), Position(3,1), Position(4,2)));
-    draw();
+
     startMove();
   });
 
