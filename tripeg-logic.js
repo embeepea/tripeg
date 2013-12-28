@@ -84,6 +84,7 @@
       return {
           'N' : N,
           'pegs' : pegs,
+          'numPegs' : 0,
           'setN' : function (N) {
               this.N = N;
           },
@@ -113,7 +114,20 @@
                   } else {
                       // excption
                   }
+                  if (this.pegs[i][j] === undefined) {
+                      // only increment peg count if the position was unoccupied
+                      this.numPegs = this.numPegs + 1;
+                  }
                   this.pegs[i][j] = peg;
+              }
+          },
+          'remove_peg' : function(i,j) {
+              if (this.position_is_valid(Position(i,j))) {
+                  if (this.pegs[i][j] !== undefined) {
+                      // only decrement peg count if the position was occupied
+                      this.numPegs = this.numPegs - 1;
+                  }
+                  this.pegs[i][j] = undefined;
               }
           },
           'get_peg' : function(i,j) {
@@ -154,6 +168,21 @@
                       }
                   }
               }
+          },
+          'move_allowed' : function(move) {
+              var ans = (
+                  this.contains_peg(move.jumper.i, move.jumper.j)
+                      && this.contains_peg(move.jumpee.i, move.jumpee.j)
+                      && !this.contains_peg(move.dest.i, move.dest.j)
+                      && this.position_is_valid(move.dest)
+              );
+              return (ans);
+          },
+          'move' : function(move) {
+              this.pegs[move.dest.i][move.dest.j] = this.pegs[move.jumper.i][move.jumper.j];
+              this.pegs[move.jumper.i][move.jumper.j] = undefined;
+              this.pegs[move.jumpee.i][move.jumpee.j] = undefined;
+              this.numPegs = this.numPegs - 1;
           },
 
       };

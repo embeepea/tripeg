@@ -315,7 +315,7 @@ describe("Tripeg Logic", function () {
 
         });
 
-        describe("insert_peg / contain_peg / get_peg methods", function() {
+        describe("insert_peg / contain_peg / get_peg / numPegs", function() {
             it("insert_peg method should exist", function() {
                 var b = Board(5);
                 expect(typeof(b.insert_peg)).toBe("function");
@@ -327,6 +327,14 @@ describe("Tripeg Logic", function () {
             it("contains_peg method should exist", function() {
                 var b = Board(5);
                 expect(typeof(b.contains_peg)).toBe("function");
+            });
+            it("numPegs property should exist", function() {
+                var b = Board(5);
+                expect(typeof(b.numPegs)).toBe("number");
+            });
+            it("numPegs should initially be 0", function() {
+                var b = Board(5);
+                expect(b.numPegs).toBe(0);
             });
             it("get_peg/contains_peg should always return undefined/false if no pegs have been inserted", function() {
                 var b = Board(5), i, j;
@@ -343,6 +351,12 @@ describe("Tripeg Logic", function () {
                 expect(b.get_peg(2,2)).toEqual(13);
                 expect(b.contains_peg(2,2)).toEqual(true);
             });
+            it("numPegs should change from 0 to 1 when first peg is inserted", function() {
+                var b = Board(5);
+                expect(b.numPegs).toBe(0);
+                b.insert_peg(2,2,13);
+                expect(b.numPegs).toBe(1);
+            });
             it("after inserting just 1 peg, get_peg/contains/peg should still return undefined/false everywhere else", function() {
                 var b = Board(5);
                 var b = Board(5), i, j;
@@ -358,7 +372,45 @@ describe("Tripeg Logic", function () {
                     }
                 }
             });
+
+            it("numPegs should always reflect the correct number of pegs", function() {
+                var b = Board(5);
+                expect(b.numPegs).toBe(0);
+                b.insert_peg(2,2);
+                expect(b.numPegs).toBe(1);
+                b.insert_peg(3,2);
+                expect(b.numPegs).toBe(2);
+                b.remove_peg(3,2);
+                expect(b.numPegs).toBe(1);
+                b.insert_peg(3,2);
+                expect(b.numPegs).toBe(2);
+                b.insert_peg(4,1);
+                expect(b.numPegs).toBe(3);
+                b.insert_peg(4,1);
+                expect(b.numPegs).toBe(3);
+                b.remove_peg(4,1);
+                expect(b.numPegs).toBe(2);
+                b.remove_peg(3,2);
+                expect(b.numPegs).toBe(1);
+                b.remove_peg(2,2);
+                expect(b.numPegs).toBe(0);
+                b.remove_peg(2,2);
+                expect(b.numPegs).toBe(0);
+            });
+
+
         });
+
+        describe("remove_peg", function() {
+            it("should remove a peg", function() {
+                b = Board(5);
+                b.insert_peg(2,2);
+                expect(b.contains_peg(2,2)).toBe(true);
+                b.remove_peg(2,2);
+                expect(b.contains_peg(2,2)).toBe(false);
+            });
+        });
+
 
         describe("insert_peg_everywhere_except", function() {
             it("should insert a peg everywhere except in the designated position", function() {
@@ -375,6 +427,85 @@ describe("Tripeg Logic", function () {
                 }
 
             });
+        });
+
+        describe("move_allowed method", function() {
+            it("exists", function() {
+                var b = Board(5);
+                expect(typeof(b.move_allowed)).toBe("function");
+            });
+            it("should not allow a move on an empty board", function() {
+                var b = Board(5);
+                var m = Move(Position(0,0),Position(1,0),Position(2,0));
+                expect(b.move_allowed(m)).toBe(false);
+            });
+            it("should allow a valid move", function() {
+                var b = Board(5);
+                b.insert_peg(0,0);
+                b.insert_peg(1,0);
+                var m = Move(Position(0,0),Position(1,0),Position(2,0));
+                expect(b.move_allowed(m)).toBe(true);
+            });
+            it("should not allow a move to an occupied destination", function() {
+                var b = Board(5);
+                b.insert_peg(0,0);
+                b.insert_peg(1,0);
+                b.insert_peg(2,0);
+                var m = Move(Position(0,0),Position(1,0),Position(2,0));
+                expect(b.move_allowed(m)).toBe(false);
+            });
+            it("should not allow an emtpy spot to be jumped", function() {
+                var b = Board(5);
+                b.insert_peg(0,0);
+                var m = Move(Position(0,0),Position(1,0),Position(2,0));
+                expect(b.move_allowed(m)).toBe(false);
+            });
+            it("should not allow a move from an unoccupied position", function() {
+                var b = Board(5);
+                b.insert_peg(1,0);
+                var m = Move(Position(0,0),Position(1,0),Position(2,0));
+                expect(b.move_allowed(m)).toBe(false);
+            });
+
+        });
+
+
+        describe("move method", function() {
+            it("exists", function() {
+                var b = Board(5);
+                expect(typeof(b.move)).toBe("function");
+            });
+            it("should correctly remove the jumper position", function() {
+                var b = Board(5);
+                b.insert_peg(0,0);
+                b.insert_peg(1,0);
+                expect(b.numPegs).toBe(2);
+                var m = Move(Position(0,0),Position(1,0),Position(2,0));
+                b.move(m);
+                expect(b.contains_peg(0,0)).toBe(false);
+                expect(b.numPegs).toBe(1);
+            });
+            it("should correctly remove the jumpee position", function() {
+                var b = Board(5);
+                b.insert_peg(0,0);
+                b.insert_peg(1,0);
+                expect(b.numPegs).toBe(2);
+                var m = Move(Position(0,0),Position(1,0),Position(2,0));
+                b.move(m);
+                expect(b.numPegs).toBe(1);
+                expect(b.contains_peg(1,0)).toBe(false);
+            });
+            it("should correctly insert the destination position", function() {
+                var b = Board(5);
+                b.insert_peg(0,0);
+                b.insert_peg(1,0);
+                expect(b.numPegs).toBe(2);
+                var m = Move(Position(0,0),Position(1,0),Position(2,0));
+                b.move(m);
+                expect(b.contains_peg(2,0)).toBe(true);
+                expect(b.numPegs).toBe(1);
+            });
+
         });
 
 
