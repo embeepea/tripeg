@@ -1,12 +1,4 @@
 (function() {
-  var N = 5;
-
-  var setN = function(newN) {
-    N = newN;
-  }
-  var getN = function() {
-    return N;
-  }
 
   var Direction = function(i,j) {
     return {
@@ -57,21 +49,6 @@
       'toString' : function() { return 'Pos(' + this.i + ',' + this.j + ')'; },
       'add' : function(direction) {
         return Position(this.i + direction.i, this.j + direction.j);
-      },
-      'is_valid' : function() {
-        return (this.i>=0 && this.i<N && this.j>=0 && this.j<=this.i);
-      },
-      'possible_moves' : function() {
-         var moves = [],
-             i, dir, dest;
-         for (i=0; i<six_directions.length; ++i) {
-           dir = six_directions[i];
-           dest = this.add(dir.times(2));
-           if (dest.is_valid()) {
-             moves.push(Move(this, this.add(dir), dest));
-           }
-         }
-         return moves;
       }
     };
   };
@@ -87,16 +64,40 @@
     };
   };
 
-  var Board = function() {
+  var Board = function(N) {
+      return {
+          'N' : N,
+          'setN' : function (N) {
+              this.N = N;
+          },
+          'getN' : function (N) {
+              return this.N;
+          },
+          'position_is_valid' : function(p) {
+              return (p.i>=0 && p.i<this.N && p.j>=0 && p.j<=p.i);
+          },
+          'position_possible_moves' : function(p) {
+              var moves = [],
+              i, dir, dest;
+              for (i=0; i<six_directions.length; ++i) {
+                  dir = six_directions[i];
+                  dest = p.add(dir.times(2));
+                  if (this.position_is_valid(dest)) {
+                      moves.push(Move(p, p.add(dir), dest));
+                  }
+              }
+              return moves;
+          }
+
+      };
   }
 
   window.tripeg_logic = {
       'Direction'      : Direction,
       'Position'       : Position,
       'Move'           : Move,
-      'six_directions' : six_directions,
-      'getN'           : getN,
-      'setN'           : setN
+      'Board'          : Board,
+      'six_directions' : six_directions
       };
 
 }());
