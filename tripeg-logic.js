@@ -1,5 +1,13 @@
 (function() {
 
+    function map(arr, func) {
+        var ans = [], i;
+        for (i=0; i<arr.length; ++i) {
+            ans.push(func(arr[i]));
+        }
+        return ans;
+    }
+
   var Direction = function(i,j) {
     return {
       'i' : i,
@@ -65,8 +73,17 @@
   };
 
   var Board = function(N) {
+      var pegs = [], i, j;
+      for (i=0; i<N; ++i) {
+          pegs[i] = [];
+          for (j=0; j<=i; ++j) {
+              pegs[i][j] = undefined;
+          }
+      }
+      
       return {
           'N' : N,
+          'pegs' : pegs,
           'setN' : function (N) {
               this.N = N;
           },
@@ -87,7 +104,57 @@
                   }
               }
               return moves;
-          }
+          },
+          'insert_peg' : function(i,j,peg) {
+              if (this.position_is_valid(Position(i,j))) {
+                  if (peg === undefined) { peg = true; }
+                  if (this.pegs[i] == undefined) {
+                      this.pegs[i] = [];
+                  } else {
+                      // excption
+                  }
+                  this.pegs[i][j] = peg;
+              }
+          },
+          'get_peg' : function(i,j) {
+              if (this.position_is_valid(Position(i,j))) {
+                  if (this.pegs[i] !== undefined) {
+                      return this.pegs[i][j];
+                  }
+              }
+              return undefined;
+          },
+          'contains_peg' : function(i,j) {
+              if (this.position_is_valid(Position(i,j))) {
+                  if (this.pegs[i] !== undefined) {
+                      return (this.pegs[i][j] !== undefined);
+                  }
+              }
+              return false;
+          },
+          'toString' : function() {
+              var arr = [ "[" ];
+              for (i=0; i<this.N; ++i) {
+                  arr.push("[");
+                  for (j=0; j<=i; ++j) {
+                      arr.push(this.get_peg(i,j));
+                      if (j<i) { arr.push(","); }
+                  }
+                  arr.push("]");
+                  if (i<this.N-1) { arr.push(","); }
+              }
+              arr.push("]");
+              return arr.join("");
+          },
+          'insert_peg_everywhere_except' : function(r,c,peg) {
+              for (i=0; i<this.N; ++i) {
+                  for (j=0; j<=i; ++j) {
+                      if (!(i===r && j===c)) {
+                          this.insert_peg(i,j,peg);
+                      }
+                  }
+              }
+          },
 
       };
   }

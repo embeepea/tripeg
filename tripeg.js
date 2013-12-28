@@ -153,7 +153,7 @@
       'pegs' : pegs,
 
       'move' : function(move) {
-        this.pegs[move.dest.i][move.dest.j] = this.pegs[move.jumper.i][move.jumper.j]
+        this.pegs[move.dest.i][move.dest.j] = this.pegs[move.jumper.i][move.jumper.j];
         this.pegs[move.jumper.i][move.jumper.j] = undefined;
         this.pegs[move.jumpee.i][move.jumpee.j] = undefined;
       },

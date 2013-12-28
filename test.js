@@ -315,9 +315,67 @@ describe("Tripeg Logic", function () {
 
         });
 
+        describe("insert_peg / contain_peg / get_peg methods", function() {
+            it("insert_peg method should exist", function() {
+                var b = Board(5);
+                expect(typeof(b.insert_peg)).toBe("function");
+            });
+            it("get_peg method should exist", function() {
+                var b = Board(5);
+                expect(typeof(b.get_peg)).toBe("function");
+            });
+            it("contains_peg method should exist", function() {
+                var b = Board(5);
+                expect(typeof(b.contains_peg)).toBe("function");
+            });
+            it("get_peg/contains_peg should always return undefined/false if no pegs have been inserted", function() {
+                var b = Board(5), i, j;
+                for (i=-2; i<10; ++i) {
+                    for (j=-2; j<10; ++j) {
+                        expect(b.get_peg(i,j)).toBeUndefined();
+                        expect(b.contains_peg(i,j)).toBe(false);
+                    }
+                }
+            });
+            it("should be able to insert a peg and get it back", function() {
+                var b = Board(5);
+                b.insert_peg(2,2,13);
+                expect(b.get_peg(2,2)).toEqual(13);
+                expect(b.contains_peg(2,2)).toEqual(true);
+            });
+            it("after inserting just 1 peg, get_peg/contains/peg should still return undefined/false everywhere else", function() {
+                var b = Board(5);
+                var b = Board(5), i, j;
+                b.insert_peg(2,2,13);
+                expect(b.get_peg(2,2)).toEqual(13);
+                expect(b.contains_peg(2,2)).toEqual(true);
+                for (i=-2; i<10; ++i) {
+                    for (j=-2; j<10; ++j) {
+                        if (! (i===2 && j===2)) {
+                            expect(b.get_peg(i,j)).toBeUndefined();
+                            expect(b.contains_peg(i,j)).toBe(false);
+                        }
+                    }
+                }
+            });
+        });
 
+        describe("insert_peg_everywhere_except", function() {
+            it("should insert a peg everywhere except in the designated position", function() {
+                var b = Board(5), i, j;
+                b.insert_peg_everywhere_except(2,2,42);
+                expect(b.contains_peg(2,2)).toBe(false);
+                for (i=0; i<5; ++i) {
+                    for (j=0; j<=i; ++j) {
+                        if (! (i===2 && j===2)) {
+                            expect(b.get_peg(i,j)).toEqual(42);
+                            expect(b.contains_peg(i,j)).toBe(true);
+                        }
+                    }
+                }
 
-
+            });
+        });
 
 
     });
