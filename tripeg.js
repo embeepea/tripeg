@@ -6,6 +6,7 @@
   var pad = 15;
   var frameDelayMS = 10; // ms delay between frames
   var stepsPerMove = 20; // number of steps per move
+  var interMoveDelay = 1.5 * frameDelayMS * stepsPerMove;
 
   var ctx;
 
@@ -41,6 +42,7 @@
   var hole_radius = 2.5*8;
   var g = d - 2*r;
   var q = (d - r) / Math.tan(Math.PI/6);
+
 
   var frameno = 0;
 
@@ -340,12 +342,12 @@ console.log('pushing move ' + move.toString());
     if (moves.length > 0) {
       move = moves.shift();
       move.pre();
-      move.step();
+        move.step();
     }
   }
   function finishMove() {
-    move.post();
-    startMove();
+      move.post();
+      setTimeout(function() { startMove() }, interMoveDelay);
   }
 
   function findMoves(board) {
