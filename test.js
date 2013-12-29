@@ -508,6 +508,50 @@ describe("Tripeg Logic", function () {
 
         });
 
+        function check_board_clones(b,c) {
+                var i,j;
+                expect(b.getN()===c.getN()).toBe(true);
+                for (i=0; i<5; ++i) {
+                    for (j=0; j<=i; ++j) {
+                        expect(b.get_peg(i,j) === c.get_peg(i,j)).toBe(true);
+                    }
+                }
+        }
+
+        // still need: tests for 'clone' method
+        describe("clone method", function() {
+            it("empty board should clone properly (N=5)", function() {
+                var b = Board(5);
+                var c = b.clone();
+                check_board_clones(b,c);
+            });
+            it("board with one peg should clone properly (N=5)", function() {
+                var b = Board(5);
+                b.insert_peg(0,0,1);
+                var c = b.clone();
+                check_board_clones(b,c);
+            });
+        });
+
+
+        // still need: tests for 'board_possible_moves' method
+        describe("board_possible_moves method", function() {
+            it("should return two moves for a new board with just one peg missing in slot 0,0", function() {
+                var b = Board(5);
+                b.insert_peg_everywhere_except(0,0);
+                var moves = b.board_possible_moves();
+                expect(moves.length).toBe(2);
+            });
+        });
+
+
+        it("should solve a board", function() {
+            var b = Board(5);
+            b.insert_peg_everywhere_except(0,0,1);
+            var moves = b.solve().reverse();
+            console.log(map(moves, function(m) { return m.toString(); }).join("\n"));
+        });
+
 
     });
 

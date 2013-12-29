@@ -5,7 +5,7 @@
   var f = 0.8660254037844386;
   var pad = 15;
   var frameDelayMS = 10; // ms delay between frames
-  var stepsPerMove = 10; // number of steps per move
+  var stepsPerMove = 20; // number of steps per move
 
   var ctx;
 
@@ -322,9 +322,10 @@ console.log('pushing move ' + move.toString());
       'post' : function() {
         var peg = board.pegs[jumper.i][jumper.j];
         peg.moving = false;
-        peg.i = board.pegs[jumper.i][jumper.j].dest_i;
-        peg.j = board.pegs[jumper.i][jumper.j].dest_j;
+        peg.i = peg.dest_i;
+        peg.j = peg.dest_j;
         board.pegs[dest.i][dest.j] = peg;
+        board.pegs[jumper.i][jumper.j] = undefined;
         board.pegs[jumpee.i][jumpee.j] = undefined;
         requestAnimationFrame(function() { draw(); });
       }
@@ -353,10 +354,8 @@ console.log('pushing move ' + move.toString());
     var i,
         possible_moves = board.possible_moves(),
         move;
-console.log('exploring ' + possible_moves.length + ' moves');
     for (i=0; i<possible_moves.length; ++i) {
       move = possible_moves[i];
-console.log('  checking move ' + move.toString());
       var b = board.clone();
       b.move(move);
       var moves = findMoves(b);
@@ -381,6 +380,20 @@ console.log('  checking move ' + move.toString());
 
 //    moves = findMoves(board);
 
+    var b = tripeg_logic.Board(N);
+    b.insert_peg_everywhere_except(0,0,1);
+    var tmoves = b.solve().reverse();
+    var i;
+
+    for (i=0; i<tmoves.length; ++i) {
+        var tm = tmoves[i];
+        var m = Move(Position(tm.jumper.i,tm.jumper.j),
+                     Position(tm.jumpee.i,tm.jumpee.j),
+                     Position(tm.dest.i,tm.dest.j));
+        moves.push(m);
+    }
+ /*
+
     moves.push(Move(Position(2,0), Position(1,0), Position(0,0)));
     moves.push(Move(Position(4,0), Position(3,0), Position(2,0)));
     moves.push(Move(Position(4,2), Position(4,1), Position(4,0)));
@@ -390,6 +403,7 @@ console.log('  checking move ' + move.toString());
     moves.push(Move(Position(2,1), Position(3,2), Position(4,3)));
     moves.push(Move(Position(4,3), Position(4,2), Position(4,1)));
     moves.push(Move(Position(2,0), Position(3,1), Position(4,2)));
+*/
 
     startMove();
   });

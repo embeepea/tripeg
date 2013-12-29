@@ -184,6 +184,64 @@
               this.pegs[move.jumpee.i][move.jumpee.j] = undefined;
               this.numPegs = this.numPegs - 1;
           },
+          'clone' : function() {
+              var b = Board(this.getN()), i, j;
+              for (i=0; i<this.getN(); ++i) {
+                  for (j=0; j<=i; ++j) {
+                      if (this.contains_peg(i,j)) {
+                          b.insert_peg(i,j,this.get_peg(i,j));
+                      }
+                  }
+              }
+              return b;
+          },
+          'board_possible_moves' : function() {
+              var moves = [], i, j, k;
+              for (i=0; i<this.N; ++i) {
+                  for (j=0; j<=i; ++j) {
+                      var moves_this_pos = this.position_possible_moves(Position(i,j))
+                      for (k=0; k<moves_this_pos.length; ++k) {
+                          var move = moves_this_pos[k];
+                          if (this.move_allowed(move)) {
+                              moves.push(move);
+                          }
+                      }
+                  }
+              }
+              return moves;
+          },
+
+
+          // return a list of moves to solve this board, if possible
+          // return the empty list [] if the board is already solved
+          // return `undefined` if the board cannot be solved
+          'solve' : function() {
+//console.log('solving board: ' + this.toString());
+              if (this.numPegs === 1) {
+                  return [];
+              }
+              var i;
+              var possible_moves = this.board_possible_moves();
+              var move;
+              for (i=0; i<possible_moves.length; ++i) {
+                  move = possible_moves[i];
+//console.log('checking move ' + move.toString());
+                  var b = this.clone();
+                  b.move(move);
+//console.log('  resulting board is: ' + b.toString());
+                  var moves = b.solve();
+//console.log('  moves are:');
+//console.log(moves);
+                  if (moves !== undefined) {
+//console.log('returning an answer now');
+                      var answer = moves.slice(0);
+                      answer.push(move);
+                      return answer;
+                  }
+              }
+              return undefined;
+          },
+
 
       };
   }
