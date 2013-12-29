@@ -36,8 +36,9 @@
 
   var colors = makeColors(N);
 
-  var d = 50;
-  var r = 18;
+  var d = 2.5*50;
+  var r = 2.5*18;
+  var hole_radius = 2.5*8;
   var g = d - 2*r;
   var q = (d - r) / Math.tan(Math.PI/6);
 
@@ -277,7 +278,7 @@ console.log('pushing move ' + move.toString());
     for (i=0; i<N; ++i) {
       for (j=0; j<=i; ++j) {
           c = peg_center(i,j);
-          draw_peg(c, 8, "#000000");
+          draw_peg(c, hole_radius, "#000000");
       }
     }
 
