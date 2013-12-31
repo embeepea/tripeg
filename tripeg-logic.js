@@ -211,12 +211,10 @@
               return moves;
           },
 
-
           // return a list of moves to solve this board, if possible
           // return the empty list [] if the board is already solved
           // return `undefined` if the board cannot be solved
           'solve' : function() {
-//console.log('solving board: ' + this.toString());
               if (this.numPegs === 1) {
                   return [];
               }
@@ -225,15 +223,10 @@
               var move;
               for (i=0; i<possible_moves.length; ++i) {
                   move = possible_moves[i];
-//console.log('checking move ' + move.toString());
                   var b = this.clone();
                   b.move(move);
-//console.log('  resulting board is: ' + b.toString());
                   var moves = b.solve();
-//console.log('  moves are:');
-//console.log(moves);
                   if (moves !== undefined) {
-//console.log('returning an answer now');
                       var answer = moves.slice(0);
                       answer.push(move);
                       return answer;
