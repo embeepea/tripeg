@@ -66,49 +66,12 @@
     return a + f*(b - a);
   }
 
-  function Direction(i,j) {
-    return {
-      'i' : i,
-      'j' : j,
-      'times' : function(f) {
-        return Direction(this.i * f, this.j * f);
-      }
-    };
-  }
-
   function Position(i,j) {
     return {
       'i' : i,
-      'j' : j,
-      'add' : function(direction) {
-        return Position(this.i + direction.i, this.j + direction.j);
-      },
-      'is_valid' : function() {
-        return (this.i < N && this.j <= this.i);
-      },
-      'possible_moves' : function() {
-         var moves = [],
-             i, dir, dest;
-         for (i=0; i<six_directions.length; ++i) {
-           dir = six_directions[i];
-           dest = this.add(dir.times(2));
-           if (dest.is_valid()) {
-             moves.push(Move(this, this.add(dir), dest));
-           }
-         }
-         return moves;
-      }
+      'j' : j
     }
   }
-
-  var six_directions = [
-    Direction(0,1),
-    Direction(-1,0),
-    Direction(-1,-1),
-    Direction(0.-1),
-    Direction(1,0),
-    Direction(1,1)
-  ];
 
   function Peg(i,j, color) {
     return {
@@ -119,9 +82,6 @@
       'dest_j' : undefined,
       'interpf' : undefined,
       'color' : color,
-      'clone' : function() {
-        return Peg(this.i, this.j, this.color);
-      },
       'draw' : function() {
         var c = peg_center(this.i, this.j);
         if (this.moving) {
@@ -155,70 +115,6 @@
 
     return {
       'pegs' : pegs,
-
-      'move' : function(move) {
-        this.pegs[move.dest.i][move.dest.j] = this.pegs[move.jumper.i][move.jumper.j];
-        this.pegs[move.jumper.i][move.jumper.j] = undefined;
-        this.pegs[move.jumpee.i][move.jumpee.j] = undefined;
-      },
-
-      'clone' : function() {
-        var pegs = [], i, j;
-        for (i=0; i<N; ++i) {
-          pegs[i] = [];
-          for (j=0; j<=i; ++j) {
-            if (this.pegs[i][j] !== undefined) {
-              pegs[i].push( this.pegs[i][j].clone() );
-            } else {
-              pegs[i].push( undefined );
-            }
-          }
-        }
-        return Board(pegs);
-      },
-
-      'containsPegInPosition' : function(position) {
-        return (position.i>=0 && position.i<N && position.j>=0 && position.j<=i && (this.pegs[position.i][position.j] !== undefined));
-      },
-
-      'move_allowed' : function(move) {
-          var ans = this.containsPegInPosition(move.jumper) &&
-                    this.containsPegInPosition(move.jumpee) &&
-                    !this.containsPegInPosition(move.dest);
-        return (ans);
-      },
-
-      'is_solved' : function() {
-        var n = 0;
-        for (i=0; i<N; ++i) {
-          for (j=0; j<=i; ++j) {
-            if (board.pegs[i][j] !== undefined) {
-              ++n;
-            }
-          }
-        }
-        return (n === 1)
-      },
-
-
-      'possible_moves' : function() {
-        var moves = [],
-            i, j;
-        for (i=0; i<N; ++i) {
-          for (j=0; j<=i; ++j) {
-            var moves_this_pos = Position(i,j).possible_moves();
-            for (k=0; k<moves_this_pos.length; ++k) {
-              var move = moves_this_pos[k];
-//console.log(move.toString());
-              if (this.move_allowed(move)) {
-console.log('pushing move ' + move.toString());
-                moves.push(move);
-              }
-            }
-          }
-        }
-        return moves;
-      },
 
       'draw' : function() {
         var i, j, peg,
@@ -351,27 +247,6 @@ console.log('pushing move ' + move.toString());
       setTimeout(function() { startMove() }, interMoveDelay);
   }
 
-  function findMoves(board) {
-    if (board.is_solved()) {
-      return [];
-    }
-    var i,
-        possible_moves = board.possible_moves(),
-        move;
-    for (i=0; i<possible_moves.length; ++i) {
-      move = possible_moves[i];
-      var b = board.clone();
-      b.move(move);
-      var moves = findMoves(b);
-      if (moves !== undefined) {
-        var answer = moves.slice(0);
-        answer.push(move);
-        return answer;
-      }
-    }
-    return undefined;
-  }
-
   $(document).ready(function() {
 
     board = Board();
@@ -381,8 +256,6 @@ console.log('pushing move ' + move.toString());
     ctx = $('#thecanvas')[0].getContext("2d");
 
     draw();
-
-//    moves = findMoves(board);
 
     var b = tripeg_logic.Board(N);
     b.insert_peg_everywhere_except(hole[0],hole[1],1);
@@ -396,18 +269,6 @@ console.log('pushing move ' + move.toString());
                      Position(tm.dest.i,tm.dest.j));
         moves.push(m);
     }
- /*
-
-    moves.push(Move(Position(2,0), Position(1,0), Position(0,0)));
-    moves.push(Move(Position(4,0), Position(3,0), Position(2,0)));
-    moves.push(Move(Position(4,2), Position(4,1), Position(4,0)));
-    moves.push(Move(Position(4,4), Position(4,3), Position(4,2)));
-    moves.push(Move(Position(2,2), Position(3,3), Position(4,4)));
-    moves.push(Move(Position(0,0), Position(1,1), Position(2,2)));
-    moves.push(Move(Position(2,1), Position(3,2), Position(4,3)));
-    moves.push(Move(Position(4,3), Position(4,2), Position(4,1)));
-    moves.push(Move(Position(2,0), Position(3,1), Position(4,2)));
-*/
 
     startMove();
   });

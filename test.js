@@ -545,13 +545,22 @@ describe("Tripeg Logic", function () {
         });
 
 
-        it("should solve a board", function() {
-            var b = Board(5);
-            b.insert_peg_everywhere_except(0,0,1);
-            var moves = b.solve().reverse();
-            console.log(map(moves, function(m) { return m.toString(); }).join("\n"));
+        describe("board_possible_moves method", function() {
+            it("should solve a board", function() {
+                var b = Board(5);
+                b.insert_peg_everywhere_except(0,0,1);
+                var moves = b.solve().reverse();
+                expect(moves.length).toBe(13);
+                //console.log(map(moves, function(m) { return m.toString(); }).join("\n"));
+            });
+            it("should solve another board", function() {
+                var b = Board(5);
+                b.insert_peg_everywhere_except(1,0,1);
+                var moves = b.solve().reverse();
+                expect(moves.length).toBe(13);
+                console.log(map(moves, function(m) { return m.toString(); }).join("\n"));
+            });
         });
-
 
     });
 
