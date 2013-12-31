@@ -8,6 +8,8 @@
   var stepsPerMove = 20; // number of steps per move
   var interMoveDelay = 1.5 * frameDelayMS * stepsPerMove;
 
+  var hole = [0,0];
+
   var ctx;
 
   var interpf = 0.0;
@@ -59,7 +61,6 @@
 
   var board;
 
-  var hole = [0,0];
 
   function linear_interpolate(f, a, b) {
     return a + f*(b - a);
@@ -384,7 +385,7 @@ console.log('pushing move ' + move.toString());
 //    moves = findMoves(board);
 
     var b = tripeg_logic.Board(N);
-    b.insert_peg_everywhere_except(0,0,1);
+    b.insert_peg_everywhere_except(hole[0],hole[1],1);
     var tmoves = b.solve().reverse();
     var i;
 
