@@ -8,7 +8,7 @@
   var stepsPerMove = 20; // number of steps per move
   var interMoveDelay = 1.5 * frameDelayMS * stepsPerMove;
 
-  var hole = [0,0];
+  var hole = [1,0];
 
   var ctx;
 
@@ -20,20 +20,29 @@
     'yellow' : '#FFFF00'
   };
 
+  function divvy(n,k) {
+      // Return an array of k integers which sum to n.  Each integer in the list will be
+      // equal to either n/k (integer division), or n/k + 1.
+      var d = Math.floor(n/k),
+          r = n % k,
+          i,
+          arr = [];
+      for (i=0; i<k; ++i) {
+          if (i<r) { arr.push(d+1); }
+          else { arr.push(d); }
+      }
+      return arr;
+  }
+
+
   function makeColors(N) {
     var colors = [];
     var numPegs = ( N * (N + 1) / 2 ) - 1;
-    var n = Math.floor(numPegs / 3);
+    var clens = divvy(numPegs, 3);
     var i;
-  
-    for (i=0; i<n; ++i) { colors.push('yellow'); }
-  
-    numPegs = numPegs - n;
-    n = Math.floor(numPegs / 2);
-    for (i=0; i<n; ++i) { colors.push('blue'); }
-  
-    numPegs = numPegs - n;
-    for (i=0; i<numPegs; ++i) { colors.push('red'); }
+    for (i=0; i<clens[0]; ++i) { colors.push('red'); }
+    for (i=0; i<clens[1]; ++i) { colors.push('blue'); }
+    for (i=0; i<clens[2]; ++i) { colors.push('yellow'); }
     return colors;
   }
 
@@ -237,8 +246,9 @@
 
   function startMove() {
     if (moves.length > 0) {
-      move = moves.shift();
-      move.pre();
+        console.log('starting move with moves.length = ' + moves.length);
+        move = moves.shift();
+        move.pre();
         move.step();
     }
   }
