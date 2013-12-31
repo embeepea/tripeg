@@ -75,12 +75,8 @@
     return a + f*(b - a);
   }
 
-  function Position(i,j) {
-    return {
-      'i' : i,
-      'j' : j
-    }
-  }
+
+  var Position = tripeg_logic.Position;
 
   function Peg(i,j, color) {
     return {
