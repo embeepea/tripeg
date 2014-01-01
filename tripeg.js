@@ -8,7 +8,7 @@
   var stepsPerMove = 20; // number of steps per move
   var interMoveDelay = 1.5 * frameDelayMS * stepsPerMove;
 
-  var hole = [1,0];
+  var hole = [0,0];
 
   var ctx;
 
@@ -86,16 +86,7 @@
       'dest_i' : undefined,
       'dest_j' : undefined,
       'interpf' : undefined,
-      'color' : color,
-      'draw' : function() {
-        var c = peg_center(this.i, this.j);
-        if (this.moving) {
-          var dest_c = peg_center(this.dest_i, this.dest_j);
-          c[0] = linear_interpolate(this.interpf, c[0], dest_c[0]);
-          c[1] = linear_interpolate(this.interpf, c[1], dest_c[1]);
-        }
-        draw_peg(c, r, this.color);
-      }
+      'color' : color
     };
   }
 
@@ -123,22 +114,32 @@
 
       'draw' : function() {
         var i, j, peg,
-            moving_peg = undefined;
+            moving_peg_i = undefined, moving_peg_j = undefined;
         for (i=0; i<N; ++i) {
           for (j=0; j<=i; ++j) {
             peg = pegs[i][j];
             if (peg !== undefined) {
               if (peg.moving) {
-                moving_peg = peg;
+                  moving_peg_i = i;
+                  moving_peg_j = j;
               } else {
-                peg.draw();
+                  draw_peg(peg_center(i, j), r, peg.color);
               }
             }
           }
         }
-        if (moving_peg !== undefined) {
-          moving_peg.draw(moving_peg.dest_i, moving_peg.dest_j, moving_peg.interpf);
+
+
+        if (moving_peg_i !== undefined) {
+            var peg = pegs[moving_peg_i][moving_peg_j];
+            var c = peg_center(moving_peg_i, moving_peg_j);
+            var dest_c = peg_center(peg.dest_i, peg.dest_j);
+            c[0] = linear_interpolate(peg.interpf, c[0], dest_c[0]);
+            c[1] = linear_interpolate(peg.interpf, c[1], dest_c[1]);
+            draw_peg(c, r, peg.color);
         }
+
+
       }
 
     };
@@ -155,7 +156,7 @@
     ctx.arc(center[0], center[1], radius, 0, 2 * Math.PI);
     ctx.fillStyle = color;
     ctx.fill();
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3;
     ctx.strokeStyle = '#000000';
     ctx.stroke();
   }
@@ -270,10 +271,7 @@
 
     for (i=0; i<tmoves.length; ++i) {
         var tm = tmoves[i];
-        var m = Move(Position(tm.jumper.i,tm.jumper.j),
-                     Position(tm.jumpee.i,tm.jumpee.j),
-                     Position(tm.dest.i,tm.dest.j));
-        moves.push(m);
+        moves.push(Move(tm.jumper, tm.jumpee, tm.dest));
     }
 
     startMove();
