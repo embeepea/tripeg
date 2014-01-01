@@ -1,6 +1,6 @@
 (function($) {
 
-  var N = 5;
+  var N = 6;
   var numPegs = ( N * (N + 1) / 2 ) - 1;
   var f = 0.8660254037844386;
   var pad = 15;
@@ -8,7 +8,7 @@
   var stepsPerMove = 10; // number of steps per move
   var interMoveDelay = 1.5 * frameDelayMS * stepsPerMove;
 
-  var hole = [1,0];
+  var hole = [3,1];
 
   var ctx;
 
@@ -78,10 +78,8 @@
 
   var Position = tripeg_logic.Position;
 
-  function Peg(i,j, color) {
+  function Peg(color) {
     return {
-      'i' : i,
-      'j' : j,
       'moving' : false,
       'dest_i' : undefined,
       'dest_j' : undefined,
@@ -177,10 +175,11 @@
   function Move(jumper, jumpee, dest) {
     var move = tripeg_logic.Move(jumper, jumpee, dest);
     move.pre = function() {
-        board.pegs[jumper.i][jumper.j].moving  = 1;
-        board.pegs[jumper.i][jumper.j].interpf = 0;
-        board.pegs[jumper.i][jumper.j].dest_i  = dest.i;
-        board.pegs[jumper.i][jumper.j].dest_j  = dest.j;
+        var peg = board.pegs[jumper.i][jumper.j];
+        peg.moving = true;
+        peg.interpf = 0;
+        peg.dest_i  = dest.i;
+        peg.dest_j  = dest.j;
     };
     move.step = function(n) {
         var move = this;
@@ -201,16 +200,7 @@
     move.post = function() {
         var peg = board.pegs[jumper.i][jumper.j];
         peg.moving = false;
-
         board.move(this);
-/*
-        peg.i = peg.dest_i;
-        peg.j = peg.dest_j;
-        board.pegs[dest.i][dest.j] = peg;
-        board.pegs[jumper.i][jumper.j] = undefined;
-        board.pegs[jumpee.i][jumpee.j] = undefined;
-*/
-
         requestAnimationFrame(function() { draw(); });
       };
       return move;
@@ -247,15 +237,13 @@
               k = Math.floor(colors.length * Math.random())
               color = colorNames[ colors[k] ];
               colors.splice(k,1);
-              board.insert_peg(i,j,Peg(i,j,color));
+              board.insert_peg(i,j,Peg(color));
           }
         }
       }
 
     draw();
 
-//    var b = tripeg_logic.Board(N);
-//    b.insert_peg_everywhere_except(hole[0],hole[1],1);
     var tmoves = board.solve().reverse();
     var i;
 
