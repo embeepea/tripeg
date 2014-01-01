@@ -90,34 +90,16 @@
     };
   }
 
-  function Board(pegs) {
+  function Board(N) {
 
-    var row;
-    if (pegs === undefined) {
-      pegs = [];
-      for (i=0; i<N; ++i) {
-        row = [];
-        for (j=0; j<=i; ++j) {
-          if (i !== hole[0] || j !== hole[1]) {
-            k = Math.floor(colors.length * Math.random())
-            color = colorNames[ colors[k] ];
-            colors.splice(k,1);
-            row.push( Peg(i,j,color) );
-          }
-        }
-        pegs.push(row);
-      }
-    }
+      var board = tripeg_logic.Board(N);
 
-    return {
-      'pegs' : pegs,
-
-      'draw' : function() {
+      board.draw = function() {
         var i, j, peg,
             moving_peg_i = undefined, moving_peg_j = undefined;
         for (i=0; i<N; ++i) {
           for (j=0; j<=i; ++j) {
-            peg = pegs[i][j];
+            peg = board.pegs[i][j];
             if (peg !== undefined) {
               if (peg.moving) {
                   moving_peg_i = i;
@@ -129,9 +111,8 @@
           }
         }
 
-
         if (moving_peg_i !== undefined) {
-            var peg = pegs[moving_peg_i][moving_peg_j];
+            var peg = board.pegs[moving_peg_i][moving_peg_j];
             var c = peg_center(moving_peg_i, moving_peg_j);
             var dest_c = peg_center(peg.dest_i, peg.dest_j);
             c[0] = linear_interpolate(peg.interpf, c[0], dest_c[0]);
@@ -139,11 +120,9 @@
             draw_peg(c, r, peg.color);
         }
 
+      };
 
-      }
-
-    };
-
+      return board;
   }
 
   function peg_center(i,j) {
@@ -256,17 +235,29 @@
 
   $(document).ready(function() {
 
-    board = Board();
-
     $('#thecanvas').attr('width', canvas_width);
     $('#thecanvas').attr('height', canvas_height);
     ctx = $('#thecanvas')[0].getContext("2d");
 
+
+    board = Board(N);
+
+      for (i=0; i<N; ++i) {
+        for (j=0; j<=i; ++j) {
+          if (i !== hole[0] || j !== hole[1]) {
+              k = Math.floor(colors.length * Math.random())
+              color = colorNames[ colors[k] ];
+              colors.splice(k,1);
+              board.insert_peg(i,j,Peg(i,j,color));
+          }
+        }
+      }
+
     draw();
 
-    var b = tripeg_logic.Board(N);
-    b.insert_peg_everywhere_except(hole[0],hole[1],1);
-    var tmoves = b.solve().reverse();
+//    var b = tripeg_logic.Board(N);
+//    b.insert_peg_everywhere_except(hole[0],hole[1],1);
+    var tmoves = board.solve().reverse();
     var i;
 
     for (i=0; i<tmoves.length; ++i) {
