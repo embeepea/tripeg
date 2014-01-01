@@ -5,10 +5,10 @@
   var f = 0.8660254037844386;
   var pad = 15;
   var frameDelayMS = 10; // ms delay between frames
-  var stepsPerMove = 20; // number of steps per move
+  var stepsPerMove = 10; // number of steps per move
   var interMoveDelay = 1.5 * frameDelayMS * stepsPerMove;
 
-  var hole = [0,0];
+  var hole = [1,0];
 
   var ctx;
 
@@ -175,20 +175,14 @@
   }
 
   function Move(jumper, jumpee, dest) {
-    return {
-      'toString' : function() {
-          return '(' + jumper.i + ',' + jumper.j + ') -> (' + jumpee.i + ',' + jumpee.j + ') -> (' + dest.i + ',' + dest.j +  ')';
-      },
-      'jumper' : jumper,
-      'jumpee' : jumpee,
-      'dest' : dest,
-      'pre' : function() {
+    var move = tripeg_logic.Move(jumper, jumpee, dest);
+    move.pre = function() {
         board.pegs[jumper.i][jumper.j].moving  = 1;
         board.pegs[jumper.i][jumper.j].interpf = 0;
         board.pegs[jumper.i][jumper.j].dest_i  = dest.i;
         board.pegs[jumper.i][jumper.j].dest_j  = dest.j;
-      },
-      'step' : function(n) {
+    };
+    move.step = function(n) {
         var move = this;
         if (n === undefined) { n = 0; }
         if (n < stepsPerMove) {
@@ -203,18 +197,23 @@
         } else {
           finishMove();
         }
-      },
-      'post' : function() {
+    };
+    move.post = function() {
         var peg = board.pegs[jumper.i][jumper.j];
         peg.moving = false;
+
+        board.move(this);
+/*
         peg.i = peg.dest_i;
         peg.j = peg.dest_j;
         board.pegs[dest.i][dest.j] = peg;
         board.pegs[jumper.i][jumper.j] = undefined;
         board.pegs[jumpee.i][jumpee.j] = undefined;
+*/
+
         requestAnimationFrame(function() { draw(); });
-      }
-    }
+      };
+      return move;
   }
 
   var moves = [];
