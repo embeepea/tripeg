@@ -172,54 +172,52 @@
     $counter.text(frameno);
   }
 
-  function Move(jumper, jumpee, dest) {
-    var move = tripeg_logic.Move(jumper, jumpee, dest);
-    move.pre = function() {
-        var peg = board.pegs[jumper.i][jumper.j];
-        peg.moving = true;
-        peg.interpf = 0;
-        peg.dest_i  = dest.i;
-        peg.dest_j  = dest.j;
-    };
-    move.step = function(n) {
-        var move = this;
-        if (n === undefined) { n = 0; }
-        if (n < stepsPerMove) {
-          setTimeout(function() {
-            n += 1;
-            board.pegs[jumper.i][jumper.j].interpf = n / stepsPerMove;
+    function Move(jumper, jumpee, dest) {
+        var move = tripeg_logic.Move(jumper, jumpee, dest);
+        move.begin = function() {
+            this.moving_peg = board.pegs[jumper.i][jumper.j];
+            this.moving_peg.moving = true;
+            this.moving_peg.interpf = 0;
+            this.moving_peg.dest_i  = dest.i;
+            this.moving_peg.dest_j  = dest.j;
+            this.step();
+        };
+        move.step = function(n) {
+            var move = this;
+            if (n === undefined) { n = 0; }
+            if (n < stepsPerMove) {
+                setTimeout(function() {
+                    n += 1;
+                    move.moving_peg.interpf = n / stepsPerMove;
+                    requestAnimationFrame(function() {
+                        draw();
+                        move.step(n);
+                    });
+                }, frameDelayMS);
+            } else {
+                this.end();
+            }
+        };
+        move.end = function() {
+            this.moving_peg.moving = false;
+            board.move(this);
             requestAnimationFrame(function() {
-              draw();
-              move.step(n);
+                draw();
+                setTimeout(function() { nextMove() }, interMoveDelay);
             });
-          }, frameDelayMS);
-        } else {
-          finishMove();
-        }
-    };
-    move.post = function() {
-        var peg = board.pegs[jumper.i][jumper.j];
-        peg.moving = false;
-        board.move(this);
-        requestAnimationFrame(function() { draw(); });
-      };
-      return move;
-  }
+        };
+        return move;
+    }
 
   var moves = [];
   var move;
 
-  function startMove() {
+  function nextMove() {
     if (moves.length > 0) {
         console.log('starting move with moves.length = ' + moves.length);
         move = moves.shift();
-        move.pre();
-        move.step();
+        move.begin();
     }
-  }
-  function finishMove() {
-      move.post();
-      setTimeout(function() { startMove() }, interMoveDelay);
   }
 
   $(document).ready(function() {
@@ -252,7 +250,7 @@
         moves.push(Move(tm.jumper, tm.jumpee, tm.dest));
     }
 
-    startMove();
+    nextMove();
   });
 
 }(jQuery));
