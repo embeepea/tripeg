@@ -1,5 +1,8 @@
 (function($) {
 
+  window.tripeg = {};
+  var tripeg = window.tripeg;
+
   var N = 4;
   var numPegs = ( N * (N + 1) / 2 ) - 1;
   var f = 0.8660254037844386;
@@ -45,8 +48,6 @@
     for (i=0; i<clens[2]; ++i) { colors.push('yellow'); }
     return colors;
   }
-
-  var colors = makeColors(N);
 
   var d = 2.5*50;
   var r = 2.5*18;
@@ -151,8 +152,10 @@
 
   function draw() {
     var i, j;
+/*
     ctx.fillStyle="#DDDDDD";
     ctx.fillRect(0,0,canvas_width,canvas_height);
+*/
     ctx.fillStyle="#FBA16C";
     draw_polygon(triangle_vertices);
 
@@ -220,14 +223,10 @@
     }
   }
 
-  $(document).ready(function() {
-
-    $('#thecanvas').attr('width', canvas_width);
-    $('#thecanvas').attr('height', canvas_height);
-    ctx = $('#thecanvas')[0].getContext("2d");
-
-
+  tripeg.reset = function() {
     board = Board(N);
+
+    var colors = makeColors(N);
 
       for (i=0; i<N; ++i) {
         for (j=0; j<=i; ++j) {
@@ -241,6 +240,10 @@
       }
 
     draw();
+  };
+
+  tripeg.play = function () {
+
 
     var tmoves = board.solve().reverse();
     var i;
@@ -251,6 +254,17 @@
     }
 
     nextMove();
+
+  };
+
+  $(document).ready(function() {
+
+    $('#thecanvas').attr('width', canvas_width);
+    $('#thecanvas').attr('height', canvas_height);
+    ctx = $('#thecanvas')[0].getContext("2d");
+
+    tripeg.reset();
+
   });
 
 }(jQuery));
