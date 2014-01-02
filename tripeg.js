@@ -3,7 +3,7 @@
   window.tripeg = {};
   var tripeg = window.tripeg;
 
-  var N = 4;
+  var N = 6;
   var numPegs = ( N * (N + 1) / 2 ) - 1;
   var f = 0.8660254037844386;
   var pad = 15;
