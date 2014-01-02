@@ -1,6 +1,6 @@
 (function($) {
 
-  var N = 6;
+  var N = 4;
   var numPegs = ( N * (N + 1) / 2 ) - 1;
   var f = 0.8660254037844386;
   var pad = 15;
@@ -214,7 +214,7 @@
 
   function nextMove() {
     if (moves.length > 0) {
-        console.log('starting move with moves.length = ' + moves.length);
+        //console.log('starting move with moves.length = ' + moves.length);
         move = moves.shift();
         move.begin();
     }
