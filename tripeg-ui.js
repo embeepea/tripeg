@@ -4,8 +4,14 @@
 
         $('#play').click(function() {
             console.log('play button clicked');
+            var $icon = $(this).find('i');
+            $icon.removeClass('fa-play');
+            $icon.addClass('fa-pause');
             $('#rotate-left').prop('disabled', true);
-            tripeg.play();
+            tripeg.play(function() {
+                $icon.removeClass('fa-pause');
+                $icon.addClass('fa-play');
+            });
         });
         $('#step-forward').click(function() {
             console.log('step-forward button clicked');

@@ -242,7 +242,7 @@
     draw();
   };
 
-  tripeg.play = function () {
+  tripeg.play = function (donefunc) {
 
 
     var tmoves = board.solve().reverse();
@@ -251,6 +251,12 @@
     for (i=0; i<tmoves.length; ++i) {
         var tm = tmoves[i];
         moves.push(Move(tm.jumper, tm.jumpee, tm.dest));
+    }
+
+    if (donefunc !== undefined) {
+      moves.push({
+          'begin' : donefunc
+      });
     }
 
     nextMove();
