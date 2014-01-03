@@ -3,19 +3,66 @@
   window.tripeg = {};
   var tripeg = window.tripeg;
 
-  var N = 5;
-  var numPegs = ( N * (N + 1) / 2 ) - 1;
+  var N,
+      numPegs,
+      triangle_side_length,
+      canvas_height,
+      canvas_width,
+      peg_base,
+      triangle_vertices;
+
   var f = 0.8660254037844386;
   var pad = 15;
   var frameDelayMS = 10; // ms delay between frames
   var stepsPerMove = 10; // number of steps per move
   var interMoveDelay = 1.5 * frameDelayMS * stepsPerMove;
 
-  var hole = [3,1];
+  var hole;
 
   var ctx;
 
   var interpf = 0.0;
+
+  var scaleFactor = 2.0;
+  var d = scaleFactor*50;
+  var peg_radius = scaleFactor*18;
+  var peg_radius_squared = peg_radius*peg_radius;
+  var hole_radius = scaleFactor*8;
+  var g = d - 2*peg_radius;
+  var q = (d - peg_radius) / Math.tan(Math.PI/6);
+
+
+  var frameno = 0;
+
+
+  var board;
+  var Position = tripeg_logic.Position;
+
+  var moves = [];
+  var move;
+
+  function set_N(n) {
+      N = n;
+      hole = [0,0];
+      numPegs = ( N * (N + 1) / 2 ) - 1;
+      triangle_side_length = 2*q + (N-1)*d;
+      canvas_height = 2 * pad + f * triangle_side_length;
+      canvas_width = 2 * pad + triangle_side_length;
+      peg_base = [pad + triangle_side_length/2, pad + q + g - 3];
+      triangle_vertices = [ [pad + triangle_side_length/2, pad],								// top vertex
+                            [pad + triangle_side_length,   pad + f * triangle_side_length],     // lower right vertex
+                            [pad,                          pad + f * triangle_side_length] ];   // lower left vertex
+      $('#thecanvas').attr('width', canvas_width);
+      $('#thecanvas').attr('height', canvas_height);
+      ctx = $('#thecanvas')[0].getContext("2d");
+      $('#container').css('width', (triangle_side_length + 2*pad) + 'px');
+      tripeg.reset();
+  }
+  tripeg.set_N = set_N;
+
+  tripeg.get_N = function() {
+    return N;
+  }
 
   var colorNames = {
     'red' : '#FF0000',
@@ -48,28 +95,6 @@
     for (i=0; i<clens[2]; ++i) { colors.push('yellow'); }
     return colors;
   }
-  var scaleFactor = 2.0;
-  var d = scaleFactor*50;
-  var peg_radius = scaleFactor*18;
-  var peg_radius_squared = peg_radius*peg_radius;
-  var hole_radius = scaleFactor*8;
-  var g = d - 2*peg_radius;
-  var q = (d - peg_radius) / Math.tan(Math.PI/6);
-
-
-  var frameno = 0;
-
-  var triangle_side_length = 2*q + (N-1)*d;
-
-  var canvas_height = 2 * pad + f * triangle_side_length;
-  var canvas_width = 2 * pad + triangle_side_length;
-
-  var peg_base = [pad + triangle_side_length/2, pad + q + g - 3];
-
-  var triangle_vertices = [ [pad + triangle_side_length/2, pad],								// top vertex
-                            [pad + triangle_side_length,   pad + f * triangle_side_length],     // lower right vertex
-                            [pad,                          pad + f * triangle_side_length] ];   // lower left vertex
-
   tripeg.point_in_triangle = function(x, y) {
       // return true iff (x,y) is inside the game triangle, false otherwise
       // This function depends on the fact that the topmost vertex of the triangle
@@ -115,15 +140,10 @@
         return undefined;
     };
 
-  var board;
-
-
   function linear_interpolate(f, a, b) {
     return a + f*(b - a);
   }
 
-
-  var Position = tripeg_logic.Position;
 
   function Peg(color) {
     return {
@@ -290,10 +310,6 @@
 
   function draw() {
     var i, j;
-/*
-    ctx.fillStyle="#DDDDDD";
-    ctx.fillRect(0,0,canvas_width,canvas_height);
-*/
     ctx.fillStyle="#FBA16C";
     draw_polygon(triangle_vertices);
 
@@ -360,10 +376,6 @@
         return move;
     }
 
-  var moves = [];
-  var move;
-
-
   function nextMove() {
     if (moves.length > 0) {
         //console.log('starting move with moves.length = ' + moves.length);
@@ -400,11 +412,16 @@
     draw();
   };
 
-  tripeg.play = function (donefunc) {
+  tripeg.play = function (donefunc, nosolutionfunc) {
 
+    var i,
+        tmoves = board.solve();
 
-    var tmoves = board.solve().reverse();
-    var i;
+    if (tmoves === undefined) {
+        nosolutionfunc();
+        return;
+    }
+    tmoves = tmoves.reverse();
 
     for (i=0; i<tmoves.length; ++i) {
         var tm = tmoves[i];
@@ -422,15 +439,7 @@
   };
 
   $(document).ready(function() {
-
-    $('#thecanvas').attr('width', canvas_width);
-    $('#thecanvas').attr('height', canvas_height);
-    ctx = $('#thecanvas')[0].getContext("2d");
-
-    $('#container').css('width', (triangle_side_length + 2*pad) + 'px');
-
-    tripeg.reset();
-
+    set_N(5);
   });
 
 }(jQuery));

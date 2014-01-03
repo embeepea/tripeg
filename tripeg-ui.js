@@ -1,13 +1,43 @@
 (function($) {
 
     function click_peg_to_emtpy_message() {
-        $('#message').html("Click a peg to change the location of the initial empty position");
+        $('#message').html("Click to change the initial empty position");
     }
     function clear_message() {
         $('#message').html(" ");
     }
 
+    function splash(txt) {
+        $('#splash-message').html(txt);
+        $('#splash-message-container').show();
+        setTimeout(function() {
+            $('#splash-message-container').fadeOut(400);
+        }, 500);
+    }
+
+    function incr_N(d) {
+        var N = tripeg.get_N();
+        N = N + d;
+        if (N >= 4 && N <= 6) {
+            tripeg.set_N(N);
+            tripeg.request_draw();
+        }
+        if (N <= 4) {
+            $('#minus').prop('disabled', true);
+        } else {
+            $('#minus').prop('disabled', false);
+        }
+        if (N >= 6) {
+            $('#plus').prop('disabled', true);
+        } else {
+            $('#plus').prop('disabled', false);
+        }
+        $('#play').prop('disabled', false);
+    }
+
     $(document).ready(function() {
+
+        $('#splash-message-container').hide();
 
         click_peg_to_emtpy_message();
 
@@ -17,28 +47,30 @@
             //$icon.addClass('fa-pause');
             clear_message();
             $('#play').prop('disabled', true);
-            tripeg.play(function() {
-                //$icon.removeClass('fa-pause');
-                //$icon.addClass('fa-play');
-                $('#rotate-left').prop('disabled', false);
-            });
+            tripeg.play(
+                function() {
+                    //$icon.removeClass('fa-pause');
+                    //$icon.addClass('fa-play');
+                    $('#rotate-left').prop('disabled', false);
+                },
+                function() {
+                    splash("No solution");
+                    $('#rotate-left').prop('disabled', false);
+                    $('#play').prop('disabled', false);
+                }
+            );
         });
         $('#rotate-left').click(function() {
             tripeg.reset();
             click_peg_to_emtpy_message();
             $('#play').prop('disabled', false);
         }).prop('disabled', true);
-        $('#step-forward').click(function() {
-            console.log('step-forward button clicked');
+
+        $('#plus').click(function() {
+            incr_N(1);
         });
-        $('#step-backward').click(function() {
-            console.log('step-backward button clicked');
-        });
-        $('#rotate-right').click(function() {
-            console.log('rotate-right button clicked');
-        });
-        $('#rotate-left').click(function() {
-            console.log('rotate-left button clicked');
+        $('#minus').click(function() {
+            incr_N(-1);
         });
 
         var highlighted_peg = undefined;

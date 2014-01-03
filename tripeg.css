@@ -1,7 +1,7 @@
 .btn {
   width: 80px;
-/*
   border: 1px solid black;
+/*
   width: 100px;
   height: 100px;
  */
@@ -20,16 +20,22 @@
   position: relative;
 }
 
-#play {
+#left-buttons {
+  width:  80px;
   position: absolute;
   top: 40px;
   left: 20px;
 }
 
-#rotate-left {
+#right-buttons {
+  width:  80px;
   position: absolute;
   top: 40px;
   right: 20px;
+}
+
+#right-buttons button {
+  margin-bottom: 10px;
 }
 
 #controls-container {
@@ -41,6 +47,23 @@ background-color: #ff0000;
 #container {
   margin: 0 auto;
   width: 50%;
+}
+
+#splash-message-container {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  top: 295px;
+}
+
+#splash-message {
+  width: 75%;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #000;
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
 }
 
 #message {
