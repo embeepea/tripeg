@@ -3,7 +3,7 @@
   window.tripeg = {};
   var tripeg = window.tripeg;
 
-  var N = 6;
+  var N = 4;
   var numPegs = ( N * (N + 1) / 2 ) - 1;
   var f = 0.8660254037844386;
   var pad = 15;
@@ -50,10 +50,11 @@
   }
 
   var d = 2.5*50;
-  var r = 2.5*18;
+  var peg_radius = 2.5*18;
+  var peg_radius_squared = peg_radius*peg_radius;
   var hole_radius = 2.5*8;
-  var g = d - 2*r;
-  var q = (d - r) / Math.tan(Math.PI/6);
+  var g = d - 2*peg_radius;
+  var q = (d - peg_radius) / Math.tan(Math.PI/6);
 
 
   var frameno = 0;
@@ -65,9 +66,54 @@
 
   var peg_base = [pad + triangle_side_length/2, pad + q + g - 3];
 
-  var triangle_vertices = [ [pad + triangle_side_length/2, pad],
-                            [pad + triangle_side_length, pad + f * triangle_side_length],
-                            [pad,  pad + f * triangle_side_length] ];
+  var triangle_vertices = [ [pad + triangle_side_length/2, pad],								// top vertex
+                            [pad + triangle_side_length,   pad + f * triangle_side_length],     // lower right vertex
+                            [pad,                          pad + f * triangle_side_length] ];   // lower left vertex
+
+  tripeg.point_in_triangle = function(x, y) {
+      // return true iff (x,y) is inside the game triangle, false otherwise
+      // This function depends on the fact that the topmost vertex of the triangle
+      // is the first point in the `triangle_vertices` array.
+      if (y < triangle_vertices[0][1]) { return false; } // point is above triangle
+      if (y > triangle_vertices[1][1]) { return false; } // point is below
+      var f = (y - triangle_vertices[0][1]) / (triangle_vertices[1][1] - triangle_vertices[0][1]);
+      var xcenter = pad + triangle_side_length/2;
+      var xmin = xcenter - f * triangle_side_length/2;
+      var xmax = xcenter + f * triangle_side_length/2;
+      if (x < xmin || x > xmax) { return false; }
+      return true;
+  };
+
+  function l2dist2(a,b) {
+      var dx = a[0] - b[0];
+      var dy = a[1] - b[1];
+      return dx*dx + dy*dy;
+  }
+
+    tripeg.point_in_peg = function(x,y) {
+        // return the position (as an array [x,y]) of the peg under the cursor, if any
+        // return undefined if the cursor is not over a peg (including over an empty hole)
+        var i,j, p;
+        for (i=0; i<N; ++i) {
+            p = peg_center(i,0);
+            if (y >= p[1] - peg_radius && y <= p[1] + peg_radius) {
+                for (j=0; j<=i; ++j) {
+                    if (board.contains_peg(i,j)) {
+                        p = peg_center(i,j);
+                        if (x >= p[0] - peg_radius && x <= p[0] + peg_radius) {
+                            if (l2dist2([x,y],p) < peg_radius_squared) {
+                                return [i,j];
+                            } else {
+                                return undefined;
+                            }
+                        }
+                    }
+                }
+                return undefined;
+            }
+        }
+        return undefined;
+    };
 
   var board;
 
@@ -81,17 +127,43 @@
 
   function Peg(color) {
     return {
-      'moving' : false,
-      'dest_i' : undefined,
-      'dest_j' : undefined,
-      'interpf' : undefined,
-      'color' : color
+      'moving'      : false,
+      'dest_i'      : undefined,
+      'dest_j'      : undefined,
+      'interpf'     : undefined,
+      'color'       : color,
+      'highlighted' : false,
+      'highlight'   : function (what) {
+          if (what) {
+              this.highlighted = true;
+              var p = board.get_empty_position();
+              this.dest_i = p[0];
+              this.dest_j = p[1];
+              //this.interpf = 1.0;
+              //this.moving = true;
+          } else {
+              this.highlighted = false;
+              //this.moving = false;
+          }
+      }
     };
   }
 
   function Board(N) {
 
       var board = tripeg_logic.Board(N);
+
+     board.get_empty_position = function() {
+         var i, j;
+         for (i=0; i<N; ++i) {
+             for (j=0; j<=i; ++j) {
+                 if (!this.contains_peg(i,j)) { return [i,j]; }
+             }
+         }
+         return undefined;
+     };
+
+     var highlight_opacity = 0.4;
 
       board.draw = function() {
         var i, j, peg,
@@ -104,7 +176,20 @@
                   moving_peg_i = i;
                   moving_peg_j = j;
               } else {
-                  draw_peg(peg_center(i, j), r, peg.color);
+                  var color = peg.color;
+                  if (peg.highlighted) {
+                      color = toRGBA(color, 1.0 - highlight_opacity);
+                      draw_disc(peg_center(peg.dest_i, peg.dest_j), peg_radius, {
+                          'fillStyle'   : toRGBA(peg.color, highlight_opacity),
+                          'strokeStyle' : '#000000',
+                          'lineWidth'   : 3,
+                      });
+                  }
+                  draw_disc(peg_center(i, j), peg_radius, {
+                      'fillStyle'   : color,
+                      'strokeStyle' : '#000000',
+                      'lineWidth'   : 3,
+                  });
               }
             }
           }
@@ -116,7 +201,11 @@
             var dest_c = peg_center(peg.dest_i, peg.dest_j);
             c[0] = linear_interpolate(peg.interpf, c[0], dest_c[0]);
             c[1] = linear_interpolate(peg.interpf, c[1], dest_c[1]);
-            draw_peg(c, r, peg.color);
+            draw_disc(c, peg_radius, {
+                'fillStyle'   : peg.color,
+                'strokeStyle' : '#000000',
+                'lineWidth'   : 3,
+            });
         }
 
       };
@@ -129,14 +218,44 @@
              peg_base[1] + i * f * d ];
   }
 
-  function draw_peg(center, radius, color) {
+  var toRGBA = function(hexString, alpha) {
+     var i = 0,
+         r, rHexString,
+         g, gHexString,
+         b, bHexString;
+     if (alpha === undefined) {
+         alpha = 1.0;
+     }
+     if (hexString.length == 7) { i = 1; }
+     else if (hexString.length == 8) { i = 2; }
+     rHexString = hexString.substring(i,i+2);
+     gHexString = hexString.substring(i+2,i+4);
+     bHexString = hexString.substring(i+4,i+6);
+     r = parseInt(rHexString, 16);
+     g = parseInt(gHexString, 16);
+     b = parseInt(bHexString, 16);
+     return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+  };
+
+  function draw_disc(center, radius, options) {
     ctx.beginPath();
     ctx.arc(center[0], center[1], radius, 0, 2 * Math.PI);
-    ctx.fillStyle = color;
+    if (options && options.fillStyle !== undefined) {
+        ctx.fillStyle = options.fillStyle;
+    } else {
+        ctx.fillStyle = '#000000'; // defaults to black
+    }
     ctx.fill();
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = '#000000';
-    ctx.stroke();
+    if (options && options.lineWidth) {
+        ctx.lineWidth = options.lineWidth;
+        if (options && options.strokeStyle) {
+            ctx.strokeStyle = options.strokeStyle;
+        } else {
+            ctx.strokeStyle = '#000000';
+        }
+        ctx.strokeStyle = '#000000';
+        ctx.stroke();
+    }
   }
 
   function draw_polygon(vertices) {
@@ -163,7 +282,9 @@
     for (i=0; i<N; ++i) {
       for (j=0; j<=i; ++j) {
           c = peg_center(i,j);
-          draw_peg(c, hole_radius, "#000000");
+          draw_disc(c, hole_radius, {
+              'fillStyle' : '#000000'
+          });
       }
     }
 
@@ -223,8 +344,13 @@
     }
   }
 
+  tripeg.request_draw = function() {
+      requestAnimationFrame(function() { draw(); });
+  };
+
   tripeg.reset = function() {
     board = Board(N);
+    tripeg.board = board;
 
     var colors = makeColors(N);
 

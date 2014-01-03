@@ -30,6 +30,33 @@
             console.log('rotate-left button clicked');
         });
 
+        var highlighted_peg = undefined;
+
+        $('#thecanvas').mousemove(function(event) {
+            //console.log(event.clientX + ', ' + event.clientY);
+            var peg_is_highlighted = false;
+            if (tripeg.point_in_triangle(event.offsetX, event.offsetY)) {
+                var p = tripeg.point_in_peg(event.offsetX, event.offsetY);
+                if (p) {
+                    peg_is_highlighted = true;
+                    highlighted_peg = tripeg.board.get_peg(p[0], p[1]);
+                    if (!highlighted_peg.highlighted) {
+                        highlighted_peg.highlight(true);
+                        tripeg.request_draw();
+                        return;
+                    }
+                    //console.log(p);
+                }
+                //console.log(event.offsetX + ', ' + event.offsetY);
+            }
+            if (!peg_is_highlighted && highlighted_peg !== undefined) {
+                highlighted_peg.highlight(false);
+                highlighted_peg = undefined;
+                tripeg.request_draw();
+            }
+            //console.log(event);
+        });
+
     });
 
 }(jQuery));
