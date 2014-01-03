@@ -35,16 +35,27 @@
         <td>
 
 -->
-<div id="controls">
-<button type="button" id="play" class="btn btn-lg btn-default"><i class="fa fa-play fa-3x"></i></button>
-<button type="button" id="fast-backward" class="btn btn-lg btn-default"><i class="fa fa-fast-backward fa-3x"></i></button>
-<button type="button" id="step-forward" class="btn btn-lg btn-default"><i class="fa fa-step-forward fa-3x"></i></button>
-<button type="button" id="step-backward" class="btn btn-lg btn-default"><i class="fa fa-step-backward fa-3x"></i></button>
-<button type="button" id="rotate-right" class="btn btn-lg btn-default"><i class="fa fa-rotate-right fa-3x"></i></button>
-<button type="button" id="rotate-left" class="btn btn-lg btn-default"><i class="fa fa-rotate-left fa-3x"></i></button>
+<div id="wrapper">
+  <div id="container">
+    <div id="message"></div>
+    <div id="canvas-controls-container">
+      <div id="canvasdiv" ><canvas id="thecanvas"/></div>
+      <button type="button" id="play" class="btn btn-lg btn-default"><i class="fa fa-play fa-3x"></i></button>
+      <button type="button" id="rotate-left" class="btn btn-lg btn-default"><i class="fa fa-rotate-left fa-3x"></i></button>
 
-          </div>
-          <canvas id="thecanvas"/>
+          <!--
+      <div id="controls">
+        <div id="controls-container">
+              <button type="button" id="step-forward" class="btn btn-lg btn-default"><i class="fa fa-step-forward fa-3x"></i></button>
+              <button type="button" id="step-backward" class="btn btn-lg btn-default"><i class="fa fa-step-backward fa-3x"></i></button>
+              <button type="button" id="rotate-right" class="btn btn-lg btn-default"><i class="fa fa-rotate-right fa-3x"></i></button>
+              <button type="button" id="rotate-left" class="btn btn-lg btn-default"><i class="fa fa-rotate-left fa-3x"></i></button>
+        </div>
+      </div>
+              -->
+    </div>
+  </div>
+</div>
 <!--
         </td>
       </tr>

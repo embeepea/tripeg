@@ -3,7 +3,7 @@
   window.tripeg = {};
   var tripeg = window.tripeg;
 
-  var N = 4;
+  var N = 5;
   var numPegs = ( N * (N + 1) / 2 ) - 1;
   var f = 0.8660254037844386;
   var pad = 15;
@@ -48,11 +48,11 @@
     for (i=0; i<clens[2]; ++i) { colors.push('yellow'); }
     return colors;
   }
-
-  var d = 2.5*50;
-  var peg_radius = 2.5*18;
+  var scaleFactor = 2.0;
+  var d = scaleFactor*50;
+  var peg_radius = scaleFactor*18;
   var peg_radius_squared = peg_radius*peg_radius;
-  var hole_radius = 2.5*8;
+  var hole_radius = scaleFactor*8;
   var g = d - 2*peg_radius;
   var q = (d - peg_radius) / Math.tan(Math.PI/6);
 
@@ -164,6 +164,7 @@
      };
 
      var highlight_opacity = 0.4;
+     var highlight_fraction = 0.1;
 
       board.draw = function() {
         var i, j, peg,
@@ -178,18 +179,30 @@
               } else {
                   var color = peg.color;
                   if (peg.highlighted) {
+                      draw_displaced_disc(peg_center(i,j),
+                                          peg_radius,
+                                          peg_center(peg.dest_i, peg.dest_j),
+                                          highlight_fraction,
+                                          {
+                                              'fillStyle'   : peg.color,
+                                              'strokeStyle' : '#000000',
+                                              'lineWidth'   : 6,
+                                          });
+                      /*
                       color = toRGBA(color, 1.0 - highlight_opacity);
                       draw_disc(peg_center(peg.dest_i, peg.dest_j), peg_radius, {
                           'fillStyle'   : toRGBA(peg.color, highlight_opacity),
                           'strokeStyle' : '#000000',
                           'lineWidth'   : 3,
                       });
+                      */
+                  } else {
+                      draw_disc(peg_center(i, j), peg_radius, {
+                          'fillStyle'   : color,
+                          'strokeStyle' : '#000000',
+                          'lineWidth'   : 3,
+                      });
                   }
-                  draw_disc(peg_center(i, j), peg_radius, {
-                      'fillStyle'   : color,
-                      'strokeStyle' : '#000000',
-                      'lineWidth'   : 3,
-                  });
               }
             }
           }
@@ -197,15 +210,15 @@
 
         if (moving_peg_i !== undefined) {
             var peg = board.pegs[moving_peg_i][moving_peg_j];
-            var c = peg_center(moving_peg_i, moving_peg_j);
-            var dest_c = peg_center(peg.dest_i, peg.dest_j);
-            c[0] = linear_interpolate(peg.interpf, c[0], dest_c[0]);
-            c[1] = linear_interpolate(peg.interpf, c[1], dest_c[1]);
-            draw_disc(c, peg_radius, {
-                'fillStyle'   : peg.color,
-                'strokeStyle' : '#000000',
-                'lineWidth'   : 3,
-            });
+            draw_displaced_disc(peg_center(moving_peg_i, moving_peg_j),
+                                peg_radius,
+                                peg_center(peg.dest_i, peg.dest_j),
+                                peg.interpf,
+                                {
+                                    'fillStyle'   : peg.color,
+                                    'strokeStyle' : '#000000',
+                                    'lineWidth'   : 3,
+                                });
         }
 
       };
@@ -236,6 +249,12 @@
      b = parseInt(bHexString, 16);
      return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
   };
+
+  function draw_displaced_disc(center, radius, dest, fraction, options) {
+      var c = [ linear_interpolate(fraction, center[0], dest[0]),
+                linear_interpolate(fraction, center[1], dest[1]) ]
+      draw_disc(c, radius, options);
+  }
 
   function draw_disc(center, radius, options) {
     ctx.beginPath();
@@ -296,6 +315,14 @@
     $counter.text(frameno);
   }
 
+  tripeg.moveToEmpty = function(p) {
+      hole = p;
+      var emptyp = board.get_empty_position();
+      var move = Move(Position(p[0],p[1]), undefined, Position(emptyp[0],emptyp[1]));
+      moves.push(move);
+      nextMove();
+  };
+
     function Move(jumper, jumpee, dest) {
         var move = tripeg_logic.Move(jumper, jumpee, dest);
         move.begin = function() {
@@ -336,6 +363,7 @@
   var moves = [];
   var move;
 
+
   function nextMove() {
     if (moves.length > 0) {
         //console.log('starting move with moves.length = ' + moves.length);
@@ -343,6 +371,10 @@
         move.begin();
     }
   }
+
+  tripeg.Move = Move;
+  tripeg.moves = moves;
+  tripeg.nextMove = nextMove();
 
   tripeg.request_draw = function() {
       requestAnimationFrame(function() { draw(); });
@@ -394,6 +426,8 @@
     $('#thecanvas').attr('width', canvas_width);
     $('#thecanvas').attr('height', canvas_height);
     ctx = $('#thecanvas')[0].getContext("2d");
+
+    $('#container').css('width', (triangle_side_length + 2*pad) + 'px');
 
     tripeg.reset();
 

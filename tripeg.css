@@ -1,8 +1,61 @@
-#controls button {
+.btn {
   width: 80px;
 /*
   border: 1px solid black;
   width: 100px;
   height: 100px;
  */
+}
+
+.button-spacer {
+  width: 100px;
+  height: 100px;
+  background-color: #ff0000;
+}
+
+#wrapper {
+}
+
+#canvas-controls-container {
+  position: relative;
+}
+
+#play {
+  position: absolute;
+  top: 40px;
+  left: 20px;
+}
+
+#rotate-left {
+  position: absolute;
+  top: 40px;
+  right: 20px;
+}
+
+#controls-container {
+  margin: 0 auto;
+  width: 180px;
+background-color: #ff0000;
+}
+
+#container {
+  margin: 0 auto;
+  width: 50%;
+}
+
+#message {
+  text-align: center;
+  font-weight: bold;
+  font-size: 18px;
+  margin-top: 10px;
+  height: 20px;
+/*  background-color: #ff0000; */
+}
+
+#canvasdiv {
+/*  background-color: #00ff00; */
+}
+
+#controls {
+/*  background-color: #0000ff; */
 }

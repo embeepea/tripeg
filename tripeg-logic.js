@@ -181,7 +181,11 @@
           'move' : function(move) {
               this.pegs[move.dest.i][move.dest.j] = this.pegs[move.jumper.i][move.jumper.j];
               this.pegs[move.jumper.i][move.jumper.j] = undefined;
-              this.pegs[move.jumpee.i][move.jumpee.j] = undefined;
+              // checking for undefined jumpee allows for moves that don't remove a peg, as in what happens
+              // when choosing a different initial empty hole -- i.e. just move a peg from one hole to another
+              if (move.jumpee !== undefined) {
+                  this.pegs[move.jumpee.i][move.jumpee.j] = undefined;
+              }
               this.numPegs = this.numPegs - 1;
           },
           'clone' : function() {
