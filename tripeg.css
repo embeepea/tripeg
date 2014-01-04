@@ -82,3 +82,10 @@ background-color: #ff0000;
 #controls {
 /*  background-color: #0000ff; */
 }
+
+#footer {
+  width: 100%;
+  text-align: right;
+  margin-top: 30px;
+  padding-right: 30px;
+}
