@@ -81,30 +81,26 @@
           }
       }
       
-      return {
+      var board = {
           'N' : N,
           'pegs' : pegs,
           'numPegs' : 0,
+          'possible_moves_by_position' : [],
           'setN' : function (N) {
+              var i,j;
               this.N = N;
+              for (i=0; i<N; ++i) {
+                  this.possible_moves_by_position[i] = [];
+                  for (j=0; j<=i; ++j) {
+                      this.possible_moves_by_position[i].push(this.position_possible_moves(Position(i,j)));
+                  }
+              }
           },
           'getN' : function (N) {
               return this.N;
           },
           'position_is_valid' : function(p) {
               return (p.i>=0 && p.i<this.N && p.j>=0 && p.j<=p.i);
-          },
-          'position_possible_moves' : function(p) {
-              var moves = [],
-              i, dir, dest;
-              for (i=0; i<six_directions.length; ++i) {
-                  dir = six_directions[i];
-                  dest = p.add(dir.times(2));
-                  if (this.position_is_valid(dest)) {
-                      moves.push(Move(p, p.add(dir), dest));
-                  }
-              }
-              return moves;
           },
           'insert_peg' : function(i,j,peg) {
               if (this.position_is_valid(Position(i,j))) {
@@ -199,11 +195,24 @@
               }
               return b;
           },
+          'position_possible_moves' : function(p) {
+              var moves = [],
+              i, dir, dest;
+              for (i=0; i<six_directions.length; ++i) {
+                  dir = six_directions[i];
+                  dest = p.add(dir.times(2));
+                  if (this.position_is_valid(dest)) {
+                      moves.push(Move(p, p.add(dir), dest));
+                  }
+              }
+              return moves;
+          },
           'board_possible_moves' : function() {
               var moves = [], i, j, k;
               for (i=0; i<this.N; ++i) {
                   for (j=0; j<=i; ++j) {
-                      var moves_this_pos = this.position_possible_moves(Position(i,j))
+                      //var moves_this_pos = this.position_possible_moves(Position(i,j));
+                      var moves_this_pos = this.possible_moves_by_position[i][j];
                       for (k=0; k<moves_this_pos.length; ++k) {
                           var move = moves_this_pos[k];
                           if (this.move_allowed(move)) {
@@ -241,6 +250,8 @@
 
 
       };
+      board.setN(N);
+      return board;
   }
 
   window.tripeg_logic = {
