@@ -13,5 +13,5 @@ that solves the puzzle.
 
 It's written in JavaScript and uses the HTML5 canvas element to animate the solution.
 
-You can see a running version of the program [http://www.geomtech.com/tripeg](here).
+You can see a running version of the program [here](http://www.geomtech.com/tripeg).
 
