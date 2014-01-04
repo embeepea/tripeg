@@ -37,7 +37,9 @@
         } else {
             $('#plus').prop('disabled', false);
         }
+        click_peg_to_emtpy_message();
         $('#play').prop('disabled', false);
+        peg_click_allowed = true;
     }
 
     $(document).ready(function() {
@@ -51,20 +53,23 @@
             clear_message();
             $('#play').prop('disabled', true);
             peg_click_allowed = false;
-            tripeg.play(
-                function() {
-                    $('#rotate-left').prop('disabled', false);
-                },
-                function() {
-                    splash("No solution");
-                    $('#rotate-left').prop('disabled', false);
-                    $('#play').prop('disabled', false);
-                    peg_click_allowed = true;
-                },
-                function (ms) {
-                    $('#message').html('Solution computed in ' + ms + ' ms');
-                }
-            );
+            $('#message').html("Thinking...");
+            setTimeout(function() {
+                tripeg.play(
+                    function() {
+                        $('#rotate-left').prop('disabled', false);
+                    },
+                    function() {
+                        splash("No solution");
+                        $('#rotate-left').prop('disabled', false);
+                        $('#play').prop('disabled', false);
+                        peg_click_allowed = true;
+                    },
+                    function (ms) {
+                        $('#message').html('Solution computed in ' + ms + ' ms');
+                    }
+                );
+            }, 10);
         });
         $('#rotate-left').click(function() {
             tripeg.reset();
