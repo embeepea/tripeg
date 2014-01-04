@@ -159,11 +159,8 @@
               var p = board.get_empty_position();
               this.dest_i = p[0];
               this.dest_j = p[1];
-              //this.interpf = 1.0;
-              //this.moving = true;
           } else {
               this.highlighted = false;
-              //this.moving = false;
           }
       }
     };
@@ -171,7 +168,7 @@
 
   function Board(N) {
 
-      var board = tripeg_logic.Board(N);
+      var board = tripeg_logic.BoardContext(N).create_board();
 
      board.get_empty_position = function() {
          var i, j;
@@ -412,10 +409,17 @@
     draw();
   };
 
-  tripeg.play = function (donefunc, nosolutionfunc) {
+  tripeg.play = function (donefunc, nosolutionfunc, timelogfunc) {
 
     var i,
-        tmoves = board.solve();
+        tmoves,
+        t0;
+
+    t0 = (new Date()).getTime();
+    tmoves = board.solve();
+    if (timelogfunc !== undefined) {
+        timelogfunc((new Date()).getTime() - t0);
+    }
 
     if (tmoves === undefined) {
         nosolutionfunc();

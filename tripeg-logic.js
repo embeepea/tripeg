@@ -50,6 +50,24 @@
     Direction(1,1)
   ];
 
+    function position_is_valid(i,j,N) {
+        return (i>=0 && i<N && j>=0 && j<=i);
+    };
+
+    function position_possible_moves(p,N) {
+        var moves = [],
+            i, dir, dest;
+        for (i=0; i<six_directions.length; ++i) {
+            dir = six_directions[i];
+            dest = p.add(dir.times(2));
+            if (position_is_valid(dest.i,dest.j,N)) {
+                moves.push(Move(p, p.add(dir), dest));
+            }
+        }
+        return moves;
+    };
+
+
   var Position = function(i,j) {
     return {
       'i' : i,
@@ -72,35 +90,48 @@
     };
   };
 
-  var Board = function(N) {
-      var pegs = [], i, j;
+  var BoardContext = function(N) {
+      var i,j, possible_moves_by_position = [];
       for (i=0; i<N; ++i) {
+          possible_moves_by_position[i] = [];
+          for (j=0; j<=i; ++j) {
+              possible_moves_by_position[i].push(position_possible_moves(Position(i,j),N));
+          }
+      }
+      return {
+          'N' : N,
+          'possible_moves_by_position' : possible_moves_by_position,
+          'create_board' : function() {
+              return Board(this);
+          }
+      };
+  };
+
+
+  var Board = function(boardContext) {
+      var pegs = [], i, j;
+      for (i=0; i<boardContext.N; ++i) {
           pegs[i] = [];
           for (j=0; j<=i; ++j) {
               pegs[i][j] = undefined;
           }
       }
       
-      var board = {
-          'N' : N,
+      return {
+          'boardContext' : boardContext,
+          'N' : boardContext.N,
           'pegs' : pegs,
           'numPegs' : 0,
-          'possible_moves_by_position' : [],
+          'possible_moves_by_position' : boardContext.possible_moves_by_position,
           'setN' : function (N) {
-              var i,j;
               this.N = N;
-              for (i=0; i<N; ++i) {
-                  this.possible_moves_by_position[i] = [];
-                  for (j=0; j<=i; ++j) {
-                      this.possible_moves_by_position[i].push(this.position_possible_moves(Position(i,j)));
-                  }
-              }
           },
           'getN' : function (N) {
               return this.N;
           },
           'position_is_valid' : function(p) {
-              return (p.i>=0 && p.i<this.N && p.j>=0 && p.j<=p.i);
+              return position_is_valid(p.i,p.j,this.N);
+              //return (p.i>=0 && p.i<this.N && p.j>=0 && p.j<=p.i);
           },
           'insert_peg' : function(i,j,peg) {
               if (this.position_is_valid(Position(i,j))) {
@@ -185,7 +216,7 @@
               this.numPegs = this.numPegs - 1;
           },
           'clone' : function() {
-              var b = Board(this.getN()), i, j;
+              var b = Board(this.boardContext), i, j;
               for (i=0; i<this.getN(); ++i) {
                   for (j=0; j<=i; ++j) {
                       if (this.contains_peg(i,j)) {
@@ -196,16 +227,7 @@
               return b;
           },
           'position_possible_moves' : function(p) {
-              var moves = [],
-              i, dir, dest;
-              for (i=0; i<six_directions.length; ++i) {
-                  dir = six_directions[i];
-                  dest = p.add(dir.times(2));
-                  if (this.position_is_valid(dest)) {
-                      moves.push(Move(p, p.add(dir), dest));
-                  }
-              }
-              return moves;
+              return position_possible_moves(p,this.N);
           },
           'board_possible_moves' : function() {
               var moves = [], i, j, k;
@@ -227,7 +249,8 @@
           // return a list of moves to solve this board, if possible
           // return the empty list [] if the board is already solved
           // return `undefined` if the board cannot be solved
-          'solve' : function() {
+          'solve' : function(level) {
+              if (level === undefined) { level = 1; }
               if (this.numPegs === 1) {
                   return [];
               }
@@ -235,10 +258,11 @@
               var possible_moves = this.board_possible_moves();
               var move;
               for (i=0; i<possible_moves.length; ++i) {
+//console.log('solve level ' + level + ': checking move ' + i + ' of ' + possible_moves.length + ' possible moves');
                   move = possible_moves[i];
                   var b = this.clone();
                   b.move(move);
-                  var moves = b.solve();
+                  var moves = b.solve(level+1);
                   if (moves !== undefined) {
                       var answer = moves.slice(0);
                       answer.push(move);
@@ -250,14 +274,13 @@
 
 
       };
-      board.setN(N);
-      return board;
-  }
+  };
 
   window.tripeg_logic = {
       'Direction'      : Direction,
       'Position'       : Position,
       'Move'           : Move,
+      'BoardContext'   : BoardContext,
       'Board'          : Board,
       'six_directions' : six_directions
       };

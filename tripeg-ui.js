@@ -2,6 +2,9 @@
 
     var peg_click_allowed = true;
 
+    var maxrows = 7;
+    var minrows = 4;
+
     function click_peg_to_emtpy_message() {
         $('#message').html("Click to change the initial empty position");
     }
@@ -20,16 +23,16 @@
     function incr_N(d) {
         var N = tripeg.get_N();
         N = N + d;
-        if (N >= 4 && N <= 6) {
+        if (N >= minrows && N <= maxrows) {
             tripeg.set_N(N);
             tripeg.request_draw();
         }
-        if (N <= 4) {
+        if (N <= minrows) {
             $('#minus').prop('disabled', true);
         } else {
             $('#minus').prop('disabled', false);
         }
-        if (N >= 6) {
+        if (N >= maxrows) {
             $('#plus').prop('disabled', true);
         } else {
             $('#plus').prop('disabled', false);
@@ -57,6 +60,9 @@
                     $('#rotate-left').prop('disabled', false);
                     $('#play').prop('disabled', false);
                     peg_click_allowed = true;
+                },
+                function (ms) {
+                    $('#message').html('Solution computed in ' + ms + ' ms');
                 }
             );
         });
