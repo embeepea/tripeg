@@ -2,7 +2,7 @@
 
     var peg_click_allowed = true;
 
-    var maxrows = 7;
+    var maxrows = 6;
     var minrows = 4;
 
     function click_peg_to_emtpy_message() {
