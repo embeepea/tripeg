@@ -59,6 +59,12 @@
                 this.moves_for_position[i].push(this.position_possible_moves(Position(i,j),N));
             }
         }
+        this.positions = [];
+        for (i=0; i<N; ++i) {
+            for (j=0; j<=i; ++j) {
+                this.positions.push(Position(i,j));
+            }
+        }
     };
     BoardContext.prototype.create_board = function() {
         return Board(this);
@@ -78,6 +84,22 @@
         }
         return moves;
     };
+    BoardContext.prototype.each_position = function(posfunc,rowfunc) {
+        var k,
+            n = 0,
+            i = 0;
+        for (k=0; k<this.positions.length; ++k) {
+            if (rowfunc !== undefined) {
+                if (n === 0) {
+                    rowfunc(i);
+                    ++i;
+                    n = i;
+                }
+                --n;
+            }
+            posfunc(this.positions[k]);
+        }
+    };
 
     var Board = tripeg_logic.Board = function(boardContext) {
         if (!(this instanceof Board)) { return new Board(boardContext); }
@@ -85,12 +107,12 @@
         this.boardContext = boardContext;
         this.N = boardContext.N;
         this.pegs = [];
-        for (i=0; i<boardContext.N; ++i) {
-            this.pegs[i] = [];
-            for (j=0; j<=i; ++j) {
-                this.pegs[i][j] = undefined;
-            }
-        }
+        var board = this;
+        this.each_position(function(p) {
+            board.pegs[p.i][p.j] = undefined;
+        }, function(i) {
+            board.pegs[i] = [];
+        });
         this.numPegs = 0;
     };
     Board.prototype.insert_peg = function(p,peg) {
@@ -147,14 +169,13 @@
         arr.push("]");
         return arr.join("");
     };
-    Board.prototype.insert_peg_everywhere_except = function(p,peg) {
-        for (i=0; i<this.N; ++i) {
-            for (j=0; j<=i; ++j) {
-                if (!(i===p.i && j===p.j)) {
-                    this.insert_peg(Position(i,j),peg);
-                }
+    Board.prototype.insert_peg_everywhere_except = function(pos,peg) {
+        var board = this;
+        this.each_position(function(p) {
+            if (!(pos.i===p.i && pos.j===p.j)) {
+                board.insert_peg(p,peg);
             }
-        }
+        });
     };
     Board.prototype.move_allowed = function(move) {
         var ans = (
@@ -177,31 +198,31 @@
     };
     Board.prototype.clone = function() {
         var b = Board(this.boardContext), i, j, p;
-        for (i=0; i<this.N; ++i) {
-            for (j=0; j<=i; ++j) {
-                p = Position(i,j);
-                if (this.contains_peg(p)) {
-                    b.insert_peg(p,this.get_peg(p));
-                }
+        var board = this;
+        this.each_position(function(p) {
+            if (board.contains_peg(p)) {
+                b.insert_peg(p,board.get_peg(p));
             }
-        }
+        });
         return b;
     };
     Board.prototype.board_possible_moves = function() {
         var moves = [], i, j, k;
-        for (i=0; i<this.N; ++i) {
-            for (j=0; j<=i; ++j) {
-                //var moves_this_pos = this.position_possible_moves(Position(i,j));
-                var moves_this_pos = this.boardContext.moves_for_position[i][j];
-                for (k=0; k<moves_this_pos.length; ++k) {
-                    var move = moves_this_pos[k];
-                    if (this.move_allowed(move)) {
-                        moves.push(move);
-                    }
+        var board = this;
+        this.each_position(function(p) {
+            //var moves_this_pos = this.position_possible_moves(Position(i,j));
+            var moves_this_pos = board.boardContext.moves_for_position[p.i][p.j];
+            for (k=0; k<moves_this_pos.length; ++k) {
+                var move = moves_this_pos[k];
+                if (board.move_allowed(move)) {
+                    moves.push(move);
                 }
             }
-        }
+        });
         return moves;
+    };
+    Board.prototype.each_position = function(f,g) {
+        this.boardContext.each_position(f,g);
     };
 
     // return a list of moves to solve this board, if possible
