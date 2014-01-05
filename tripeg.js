@@ -13,9 +13,9 @@
 
   var f = 0.8660254037844386;
   var pad = 15;
-  var frameDelayMS = 10; // ms delay between frames
-  var stepsPerMove = 10; // number of steps per move
-  var interMoveDelay = 1.5 * frameDelayMS * stepsPerMove;
+  var globalStepsPerMove = 10; // number of steps per move
+
+  var animator;
 
   var hole;
 
@@ -32,7 +32,6 @@
   var board;
   var Position = tripeg_logic.Position;
 
-  var moves = [];
   var move;
   var colors;
 
@@ -288,11 +287,12 @@
 
   tripeg.moveToEmpty = function(p) {
       hole = p;
-      moves.push(AnimationMove(Move(p, undefined, board.get_empty_position())));
-      nextMove();
+      animator.add_move(Move(p, undefined, board.get_empty_position()));
+      animator.play();
   };
 
     var Move = tripeg.Move = function(jumper, jumpee, dest) {
+        var stepsPerMove = globalStepsPerMove; // number of steps per move
         var obj = tripeg_logic.Move(jumper, jumpee, dest);
         obj.begin = function() {
             this.moving_peg = board.pegs[jumper.i][jumper.j];
@@ -316,47 +316,56 @@
         return obj;
     };
 
-    var AnimationMove = tripeg.AnimationMove = function(move) {
-        var obj = {};
-        obj.begin = function() {
-            move.begin();
-            obj.step();
-        };
-        obj.step = function() {
-            var done = (move.step === undefined) || move.step();
-            if (done) {
-                obj.end();
-            } else {
-                setTimeout(function() {
-                    requestAnimationFrame(function() {
-                        draw();
-                        obj.step();
-                    });
-                }, frameDelayMS);
+    var Animator = function() {
+        var animator = {};
+        var frameDelayMS = 10; // ms delay between frames
+        var interMoveDelay = 1.5 * frameDelayMS * globalStepsPerMove;
+        var moves = [];
+
+        animator.play = function() {
+            if (moves.length > 0) {
+                move = moves.shift();
+                move.begin();
             }
+        }
+
+        animator.add_move = function(move) {
+            var obj = {};
+            obj.begin = function() {
+                move.begin();
+                obj.step();
+            };
+            obj.step = function() {
+                var done = (move.step === undefined) || move.step();
+                if (done) {
+                    obj.end();
+                } else {
+                    setTimeout(function() {
+                        requestAnimationFrame(function() {
+                            draw();
+                            obj.step();
+                        });
+                    }, frameDelayMS);
+                }
+            };
+            obj.end = function() {
+                if (move.end !== undefined) {
+                    move.end();
+                }
+                requestAnimationFrame(function() {
+                    draw();
+                    setTimeout(function() { animator.play() }, interMoveDelay);
+                });
+            };
+            moves.push(obj);
         };
-        obj.end = function() {
-            if (move.end !== undefined) {
-                move.end();
-            }
-            requestAnimationFrame(function() {
-                draw();
-                setTimeout(function() { nextMove() }, interMoveDelay);
-            });
-        };
-        return obj;
+
+        return animator;
+
     };
 
-  function nextMove() {
-    if (moves.length > 0) {
-        //console.log('starting move with moves.length = ' + moves.length);
-        move = moves.shift();
-        move.begin();
-    }
-  }
+    animator = Animator();
 
-  tripeg.moves = moves;
-  tripeg.nextMove = nextMove();
 
   tripeg.request_draw = function() {
       requestAnimationFrame(function() { draw(); });
@@ -375,6 +384,7 @@
 
     draw();
   };
+
 
   tripeg.play = function (donefunc, nosolutionfunc, timelogfunc) {
 
@@ -396,16 +406,16 @@
 
     for (i=0; i<tmoves.length; ++i) {
         var tm = tmoves[i];
-        moves.push(AnimationMove(Move(tm.jumper, tm.jumpee, tm.dest)));
+        animator.add_move(Move(tm.jumper, tm.jumpee, tm.dest));
     }
 
     if (donefunc !== undefined) {
-      moves.push({
-          'begin' : donefunc
-      });
+        animator.add_move({
+            'begin' : donefunc
+        });
     }
 
-    nextMove();
+    animator.play();
 
   };
 
