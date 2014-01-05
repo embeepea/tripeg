@@ -52,11 +52,11 @@
         if (!(this instanceof BoardContext)) { return new BoardContext(N); }
         var i,j;
         this.N = N;
-        this.moves_for_position = [];
+        this.all_moves_for_position = [];
         for (i=0; i<N; ++i) {
-            this.moves_for_position[i] = [];
+            this.all_moves_for_position[i] = [];
             for (j=0; j<=i; ++j) {
-                this.moves_for_position[i].push(this.position_possible_moves(Position(i,j),N));
+                this.all_moves_for_position[i].push(this.all_moves(Position(i,j),N));
             }
         }
         this.positions = [];
@@ -72,7 +72,7 @@
     BoardContext.prototype.position_is_valid = function(p) {
         return (p.i>=0 && p.i<this.N && p.j>=0 && p.j<=p.i);
     };
-    BoardContext.prototype.position_possible_moves = function(p) {
+    BoardContext.prototype.all_moves = function(p) {
         var moves = [],
         i, dir, dest;
         for (i=0; i<six_directions.length; ++i) {
@@ -210,8 +210,8 @@
         var moves = [], i, j, k;
         var board = this;
         this.each_position(function(p) {
-            //var moves_this_pos = this.position_possible_moves(Position(i,j));
-            var moves_this_pos = board.boardContext.moves_for_position[p.i][p.j];
+            //var moves_this_pos = this.all_moves(Position(i,j));
+            var moves_this_pos = board.boardContext.all_moves_for_position[p.i][p.j];
             for (k=0; k<moves_this_pos.length; ++k) {
                 var move = moves_this_pos[k];
                 if (board.move_allowed(move)) {

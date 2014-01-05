@@ -193,11 +193,11 @@ describe("Tripeg Logic", function () {
         });
 
 
-        describe("position_possible_moves method", function() {
+        describe("all_moves method", function() {
             describe("with N=5", function() {
                 it("Position(0,0) should have 2 possible moves", function() {
                     var bc = BoardContext(5);
-                    var moves = map(bc.position_possible_moves(Position(0,0)),
+                    var moves = map(bc.all_moves(Position(0,0)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(2);
                     expect(array_contains(moves, "(0,0) -> (1,0) -> (2,0)")).toBe(true);
@@ -205,7 +205,7 @@ describe("Tripeg Logic", function () {
                 });
                 it("Position(1,0) should have 2 possible moves", function() {
                     var bc = BoardContext(5);
-                    var moves = map(bc.position_possible_moves(Position(1,0)),
+                    var moves = map(bc.all_moves(Position(1,0)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(2);
                     expect(array_contains(moves, "(1,0) -> (2,0) -> (3,0)")).toBe(true);
@@ -213,7 +213,7 @@ describe("Tripeg Logic", function () {
                 });
                 it("Position(2,0) should have 4 possible moves", function() {
                     var bc = BoardContext(5);
-                    var moves = map(bc.position_possible_moves(Position(2,0)),
+                    var moves = map(bc.all_moves(Position(2,0)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(4);
                     expect(array_contains(moves, "(2,0) -> (1,0) -> (0,0)")).toBe(true);
@@ -223,7 +223,7 @@ describe("Tripeg Logic", function () {
                 });
                 it("Position(2,1) should have 2 possible moves", function() {
                     var bc = BoardContext(5);
-                    var moves = map(bc.position_possible_moves(Position(2,1)),
+                    var moves = map(bc.all_moves(Position(2,1)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(2);
                     expect(array_contains(moves, "(2,1) -> (3,1) -> (4,1)")).toBe(true);
@@ -231,7 +231,7 @@ describe("Tripeg Logic", function () {
                 });
                 it("Position(4,4) should have 2 possible moves", function() {
                     var bc = BoardContext(5);
-                    var moves = map(bc.position_possible_moves(Position(4,4)),
+                    var moves = map(bc.all_moves(Position(4,4)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(2);
                     expect(array_contains(moves, "(4,4) -> (3,3) -> (2,2)")).toBe(true);
@@ -239,7 +239,7 @@ describe("Tripeg Logic", function () {
                 });
                 it("Position(4,2) should have 4 possible moves", function() {
                     var bc = BoardContext(5);
-                    var moves = map(bc.position_possible_moves(Position(4,2)),
+                    var moves = map(bc.all_moves(Position(4,2)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(4);
                     expect(array_contains(moves, "(4,2) -> (3,1) -> (2,0)")).toBe(true);
@@ -252,7 +252,7 @@ describe("Tripeg Logic", function () {
             describe("with N=4", function() {
                 it("Position(0,0) should have 2 possible moves", function() {
                     var bc = BoardContext(4);
-                    var moves = map(bc.position_possible_moves(Position(0,0)),
+                    var moves = map(bc.all_moves(Position(0,0)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(2);
                     expect(array_contains(moves, "(0,0) -> (1,0) -> (2,0)")).toBe(true);
@@ -260,7 +260,7 @@ describe("Tripeg Logic", function () {
                 });
                 it("Position(1,0) should have 2 possible moves", function() {
                     var bc = BoardContext(4);
-                    var moves = map(bc.position_possible_moves(Position(1,0)),
+                    var moves = map(bc.all_moves(Position(1,0)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(2);
                     expect(array_contains(moves, "(1,0) -> (2,0) -> (3,0)")).toBe(true);
@@ -268,7 +268,7 @@ describe("Tripeg Logic", function () {
                 });
                 it("Position(2,0) should have 2 possible moves", function() {
                     var bc = BoardContext(4);
-                    var moves = map(bc.position_possible_moves(Position(2,0)),
+                    var moves = map(bc.all_moves(Position(2,0)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(2);
                     expect(array_contains(moves, "(2,0) -> (1,0) -> (0,0)")).toBe(true);
@@ -276,7 +276,7 @@ describe("Tripeg Logic", function () {
                 });
                 it("Position(2,1) should have 0 possible moves", function() {
                     var bc = BoardContext(4);
-                    var moves = map(bc.position_possible_moves(Position(2,1)),
+                    var moves = map(bc.all_moves(Position(2,1)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(0);
                 });
@@ -287,7 +287,7 @@ describe("Tripeg Logic", function () {
                 it("Position(4,2) should have 6 possible moves", function() {
 
                     var bc = BoardContext(7);
-                    var moves = map(bc.position_possible_moves(Position(4,2)),
+                    var moves = map(bc.all_moves(Position(4,2)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(6);
                     expect(array_contains(moves, "(4,2) -> (3,1) -> (2,0)")).toBe(true);
