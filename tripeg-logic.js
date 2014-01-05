@@ -73,8 +73,8 @@
   };
 
   var BoardContext = tripeg_logic.BoardContext = function(N) {
-      var i,j;
       if (!(this instanceof BoardContext)) { return new BoardContext(N); }
+      var i,j;
       this.N = N;
       this.moves_for_position = [];
       for (i=0; i<N; ++i) {
@@ -104,159 +104,155 @@
   };
 
 
-  var Board = function(boardContext) {
-      var pegs = [], i, j;
-      for (i=0; i<boardContext.N; ++i) {
-          pegs[i] = [];
-          for (j=0; j<=i; ++j) {
-              pegs[i][j] = undefined;
-          }
-      }
+    var Board = tripeg_logic.Board = function(boardContext) {
+        if (!(this instanceof Board)) { return new Board(boardContext); }
+        var i,j;
+        this.boardContext = boardContext;
+        this.N = boardContext.N;
+        this.pegs = [];
+        for (i=0; i<boardContext.N; ++i) {
+            this.pegs[i] = [];
+            for (j=0; j<=i; ++j) {
+                this.pegs[i][j] = undefined;
+            }
+        }
+        this.numPegs = 0;
+    };
+    Board.prototype.insert_peg = function(i,j,peg) {
+        if (this.boardContext.position_is_valid(Position(i,j))) {
+            if (peg === undefined) { peg = true; }
+            if (this.pegs[i] == undefined) {
+                this.pegs[i] = [];
+            } else {
+                // excption
+            }
+            if (this.pegs[i][j] === undefined) {
+                // only increment peg count if the position was unoccupied
+                this.numPegs = this.numPegs + 1;
+            }
+            this.pegs[i][j] = peg;
+        }
+    };
+    Board.prototype.remove_peg = function(i,j) {
+        if (this.boardContext.position_is_valid(Position(i,j))) {
+            if (this.pegs[i][j] !== undefined) {
+                // only decrement peg count if the position was occupied
+                this.numPegs = this.numPegs - 1;
+            }
+            this.pegs[i][j] = undefined;
+        }
+    };
+    Board.prototype.get_peg = function(i,j) {
+        if (this.boardContext.position_is_valid(Position(i,j))) {
+            if (this.pegs[i] !== undefined) {
+                return this.pegs[i][j];
+            }
+        }
+        return undefined;
+    };
+    Board.prototype.contains_peg = function(i,j) {
+        if (this.boardContext.position_is_valid(Position(i,j))) {
+            if (this.pegs[i] !== undefined) {
+                return (this.pegs[i][j] !== undefined);
+            }
+        }
+        return false;
+    };
+    Board.prototype.toString = function() {
+        var arr = [ "[" ];
+        for (i=0; i<this.N; ++i) {
+            arr.push("[");
+            for (j=0; j<=i; ++j) {
+                arr.push(this.get_peg(i,j));
+                if (j<i) { arr.push(","); }
+            }
+            arr.push("]");
+            if (i<this.N-1) { arr.push(","); }
+        }
+        arr.push("]");
+        return arr.join("");
+    };
+    Board.prototype.insert_peg_everywhere_except = function(r,c,peg) {
+        for (i=0; i<this.N; ++i) {
+            for (j=0; j<=i; ++j) {
+                if (!(i===r && j===c)) {
+                    this.insert_peg(i,j,peg);
+                }
+            }
+        }
+    };
+    Board.prototype.move_allowed = function(move) {
+        var ans = (
+            this.contains_peg(move.jumper.i, move.jumper.j)
+                && this.contains_peg(move.jumpee.i, move.jumpee.j)
+                && !this.contains_peg(move.dest.i, move.dest.j)
+                && this.boardContext.position_is_valid(move.dest)
+        );
+        return (ans);
+    };
+    Board.prototype.move = function(move) {
+        this.pegs[move.dest.i][move.dest.j] = this.pegs[move.jumper.i][move.jumper.j];
+        this.pegs[move.jumper.i][move.jumper.j] = undefined;
+        // checking for undefined jumpee allows for moves that don't remove a peg, as in what happens
+        // when choosing a different initial empty hole -- i.e. just move a peg from one hole to another
+        if (move.jumpee !== undefined) {
+            this.pegs[move.jumpee.i][move.jumpee.j] = undefined;
+        }
+        this.numPegs = this.numPegs - 1;
+    };
+    Board.prototype.clone = function() {
+        var b = Board(this.boardContext), i, j;
+        for (i=0; i<this.N; ++i) {
+            for (j=0; j<=i; ++j) {
+                if (this.contains_peg(i,j)) {
+                    b.insert_peg(i,j,this.get_peg(i,j));
+                }
+            }
+        }
+        return b;
+    };
+    Board.prototype.board_possible_moves = function() {
+        var moves = [], i, j, k;
+        for (i=0; i<this.N; ++i) {
+            for (j=0; j<=i; ++j) {
+                //var moves_this_pos = this.position_possible_moves(Position(i,j));
+                var moves_this_pos = this.boardContext.moves_for_position[i][j];
+                for (k=0; k<moves_this_pos.length; ++k) {
+                    var move = moves_this_pos[k];
+                    if (this.move_allowed(move)) {
+                        moves.push(move);
+                    }
+                }
+            }
+        }
+        return moves;
+    };
 
-      return {
-          'boardContext' : boardContext,
-          'N' : boardContext.N,
-          'pegs' : pegs,
-          'numPegs' : 0,
-          'insert_peg' : function(i,j,peg) {
-              if (this.boardContext.position_is_valid(Position(i,j))) {
-                  if (peg === undefined) { peg = true; }
-                  if (this.pegs[i] == undefined) {
-                      this.pegs[i] = [];
-                  } else {
-                      // excption
-                  }
-                  if (this.pegs[i][j] === undefined) {
-                      // only increment peg count if the position was unoccupied
-                      this.numPegs = this.numPegs + 1;
-                  }
-                  this.pegs[i][j] = peg;
-              }
-          },
-          'remove_peg' : function(i,j) {
-              if (this.boardContext.position_is_valid(Position(i,j))) {
-                  if (this.pegs[i][j] !== undefined) {
-                      // only decrement peg count if the position was occupied
-                      this.numPegs = this.numPegs - 1;
-                  }
-                  this.pegs[i][j] = undefined;
-              }
-          },
-          'get_peg' : function(i,j) {
-              if (this.boardContext.position_is_valid(Position(i,j))) {
-                  if (this.pegs[i] !== undefined) {
-                      return this.pegs[i][j];
-                  }
-              }
-              return undefined;
-          },
-          'contains_peg' : function(i,j) {
-              if (this.boardContext.position_is_valid(Position(i,j))) {
-                  if (this.pegs[i] !== undefined) {
-                      return (this.pegs[i][j] !== undefined);
-                  }
-              }
-              return false;
-          },
-          'toString' : function() {
-              var arr = [ "[" ];
-              for (i=0; i<this.N; ++i) {
-                  arr.push("[");
-                  for (j=0; j<=i; ++j) {
-                      arr.push(this.get_peg(i,j));
-                      if (j<i) { arr.push(","); }
-                  }
-                  arr.push("]");
-                  if (i<this.N-1) { arr.push(","); }
-              }
-              arr.push("]");
-              return arr.join("");
-          },
-          'insert_peg_everywhere_except' : function(r,c,peg) {
-              for (i=0; i<this.N; ++i) {
-                  for (j=0; j<=i; ++j) {
-                      if (!(i===r && j===c)) {
-                          this.insert_peg(i,j,peg);
-                      }
-                  }
-              }
-          },
-          'move_allowed' : function(move) {
-              var ans = (
-                  this.contains_peg(move.jumper.i, move.jumper.j)
-                      && this.contains_peg(move.jumpee.i, move.jumpee.j)
-                      && !this.contains_peg(move.dest.i, move.dest.j)
-                      && this.boardContext.position_is_valid(move.dest)
-              );
-              return (ans);
-          },
-          'move' : function(move) {
-              this.pegs[move.dest.i][move.dest.j] = this.pegs[move.jumper.i][move.jumper.j];
-              this.pegs[move.jumper.i][move.jumper.j] = undefined;
-              // checking for undefined jumpee allows for moves that don't remove a peg, as in what happens
-              // when choosing a different initial empty hole -- i.e. just move a peg from one hole to another
-              if (move.jumpee !== undefined) {
-                  this.pegs[move.jumpee.i][move.jumpee.j] = undefined;
-              }
-              this.numPegs = this.numPegs - 1;
-          },
-          'clone' : function() {
-              var b = Board(this.boardContext), i, j;
-              for (i=0; i<this.N; ++i) {
-                  for (j=0; j<=i; ++j) {
-                      if (this.contains_peg(i,j)) {
-                          b.insert_peg(i,j,this.get_peg(i,j));
-                      }
-                  }
-              }
-              return b;
-          },
-          'board_possible_moves' : function() {
-              var moves = [], i, j, k;
-              for (i=0; i<this.N; ++i) {
-                  for (j=0; j<=i; ++j) {
-                      //var moves_this_pos = this.position_possible_moves(Position(i,j));
-                      var moves_this_pos = this.boardContext.moves_for_position[i][j];
-                      for (k=0; k<moves_this_pos.length; ++k) {
-                          var move = moves_this_pos[k];
-                          if (this.move_allowed(move)) {
-                              moves.push(move);
-                          }
-                      }
-                  }
-              }
-              return moves;
-          },
+    // return a list of moves to solve this board, if possible
+    // return the empty list [] if the board is already solved
+    // return `undefined` if the board cannot be solved
+    Board.prototype.solve = function(level) {
+        if (level === undefined) { level = 1; }
+        if (this.numPegs === 1) {
+            return [];
+        }
+        var i;
+        var possible_moves = this.board_possible_moves();
+        var move;
+        for (i=0; i<possible_moves.length; ++i) {
+            move = possible_moves[i];
+            var b = this.clone();
+            b.move(move);
+            var moves = b.solve(level+1);
+            if (moves !== undefined) {
+                var answer = moves.slice(0);
+                answer.push(move);
+                return answer;
+            }
+        }
+        return undefined;
+    };
 
-          // return a list of moves to solve this board, if possible
-          // return the empty list [] if the board is already solved
-          // return `undefined` if the board cannot be solved
-          'solve' : function(level) {
-              if (level === undefined) { level = 1; }
-              if (this.numPegs === 1) {
-                  return [];
-              }
-              var i;
-              var possible_moves = this.board_possible_moves();
-              var move;
-              for (i=0; i<possible_moves.length; ++i) {
-//console.log('solve level ' + level + ': checking move ' + i + ' of ' + possible_moves.length + ' possible moves');
-                  move = possible_moves[i];
-                  var b = this.clone();
-                  b.move(move);
-                  var moves = b.solve(level+1);
-                  if (moves !== undefined) {
-                      var answer = moves.slice(0);
-                      answer.push(move);
-                      return answer;
-                  }
-              }
-              return undefined;
-          },
-
-
-      };
-  };
 
   window.tripeg_logic = {
       'Direction'      : Direction,
