@@ -147,8 +147,7 @@
     var Peg = function (color) {
         if (!(this instanceof Peg)) { return new Peg(color); }
         this.moving      = false;
-        this.dest_i      = undefined;
-        this.dest_j      = undefined;
+        this.dest        = undefined;
         this.interpf     = undefined;
         this.color       = color;
         this.highlighted = false;
@@ -157,8 +156,7 @@
         if (what) {
             this.highlighted = true;
             var p = board.get_empty_position();
-            this.dest_i = p.i;
-            this.dest_j = p.j;
+            this.dest = p;
         } else {
             this.highlighted = false;
         }
@@ -195,7 +193,7 @@
                       if (peg.highlighted) {
                           draw_displaced_disc(peg_center(p),
                                               peg_radius,
-                                              peg_center(Position(peg.dest_i, peg.dest_j)),
+                                              peg_center(peg.dest),
                                               highlight_fraction,
                                               {
                                                   'fillStyle'   : peg.color,
@@ -216,7 +214,7 @@
               var peg = board.pegs[moving_peg_pos.i][moving_peg_pos.j];
               draw_displaced_disc(peg_center(moving_peg_pos),
                                   peg_radius,
-                                  peg_center(Position(peg.dest_i, peg.dest_j)),
+                                  peg_center(peg.dest),
                                   peg.interpf,
                                   {
                                       'fillStyle'   : peg.color,
@@ -322,8 +320,7 @@
             this.moving_peg = board.pegs[jumper.i][jumper.j];
             this.moving_peg.moving = true;
             this.moving_peg.interpf = 0;
-            this.moving_peg.dest_i  = dest.i;
-            this.moving_peg.dest_j  = dest.j;
+            this.moving_peg.dest  = dest;
             this.step();
         };
         move.step = function(n) {
