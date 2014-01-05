@@ -1,108 +1,83 @@
 (function() {
 
-  var tripeg_logic = {};
-  window.tripeg_logic = {};
+    var tripeg_logic = window.tripeg_logic = {};
 
-  var Direction = tripeg_logic.Direction = function(i,j) {
-    if (!(this instanceof Direction)) { return new Direction(i,j); }
-    this.i = i;
-    this.j = j;
-  };
-  Direction.prototype.times = function(f) {
-      return Direction(this.i * f, this.j * f);
-  };
-  Direction.prototype.toString = function() {
-    return 'Dir(' + this.i + ',' + this.j + ')';
-  };
-
-
-//    
-//    
-//           *
-//         *   *
-//       *   *   *
-//     *   *   *    *
-//    
-//                     0,0
-//                 1,0     1,1
-//             2,0     2,1     2,2
-//         3,0     3,1     3,2     3,3
-//     4,0     4,1     4,2     4,3     4,5
-//    
-//    0,1   straight right
-//    -1,0  up right
-//    -1,-1 up left
-//    0,-1  straight left
-//    1,0   down left
-//    1,1   down right
-//    
-//    
-
-  var six_directions = [
-    Direction(0,1),
-    Direction(-1,0),
-    Direction(-1,-1),
-    Direction(0,-1),
-    Direction(1,0),
-    Direction(1,1)
-  ];
-
-  var Position = tripeg_logic.Position = function(i,j) {
-    if (!(this instanceof Position)) { return new Position(i,j); }
-    this.i = i;
-    this.j = j;
-  };
-  Position.prototype.toString = function() {
-      return 'Pos(' + this.i + ',' + this.j + ')';
-  };
-  Position.prototype.add = function(direction) {
-      return Position(this.i + direction.i, this.j + direction.j);
-  };
-
-
-
-  var Move = function(jumper, jumpee, dest) {
-    return {
-      'jumper' : jumper,
-      'jumpee' : jumpee,
-      'dest'   : dest,
-      'toString' : function() {
-          return '(' + jumper.i + ',' + jumper.j + ') -> (' + jumpee.i + ',' + jumpee.j + ') -> (' + dest.i + ',' + dest.j +  ')';
-      }
+    var Direction = tripeg_logic.Direction = function(i,j) {
+        if (!(this instanceof Direction)) { return new Direction(i,j); }
+        this.i = i;
+        this.j = j;
     };
-  };
+    Direction.prototype.times = function(f) {
+        return Direction(this.i * f, this.j * f);
+    };
+    Direction.prototype.toString = function() {
+        return 'Dir(' + this.i + ',' + this.j + ')';
+    };
 
-  var BoardContext = tripeg_logic.BoardContext = function(N) {
-      if (!(this instanceof BoardContext)) { return new BoardContext(N); }
-      var i,j;
-      this.N = N;
-      this.moves_for_position = [];
-      for (i=0; i<N; ++i) {
-          this.moves_for_position[i] = [];
-          for (j=0; j<=i; ++j) {
-              this.moves_for_position[i].push(this.position_possible_moves(Position(i,j),N));
-          }
-      }
-  };
-  BoardContext.prototype.create_board = function() {
-      return Board(this);
-  };
-  BoardContext.prototype.position_is_valid = function(p) {
-      return (p.i>=0 && p.i<this.N && p.j>=0 && p.j<=p.i);
-  };
-  BoardContext.prototype.position_possible_moves = function(p) {
-      var moves = [],
-      i, dir, dest;
-      for (i=0; i<six_directions.length; ++i) {
-          dir = six_directions[i];
-          dest = p.add(dir.times(2));
-          if (this.position_is_valid(dest)) {
-              moves.push(Move(p, p.add(dir), dest));
-          }
-      }
-      return moves;
-  };
+    var six_directions = tripeg_logic.six_directions = [
+        Direction(0,1),        // straight right
+        Direction(-1,0),       // up & right      
+        Direction(-1,-1),      // up & left       
+        Direction(0,-1),       // straight left 
+        Direction(1,0),        // down & left     
+        Direction(1,1)         // down & right    
+    ];
 
+    var Position = tripeg_logic.Position = function(i,j) {
+        if (!(this instanceof Position)) { return new Position(i,j); }
+        this.i = i;
+        this.j = j;
+    };
+    Position.prototype.toString = function() {
+        return 'Pos(' + this.i + ',' + this.j + ')';
+    };
+    Position.prototype.add = function(direction) {
+        return Position(this.i + direction.i, this.j + direction.j);
+    };
+
+    var Move = tripeg_logic.Move = function(jumper, jumpee, dest) {
+        if (!(this instanceof Move)) { return new Move(jumper, jumpee, dest); }
+        this.jumper = jumper;
+        this.jumpee = jumpee;
+        this.dest   = dest;
+    };
+    Move.prototype.toString = function() {
+        return (
+            '(' + this.jumper.i + ',' + this.jumper.j + ') -> (' +
+                this.jumpee.i + ',' + this.jumpee.j + ') -> (' + this.dest.i + ',' + this.dest.j +  ')'
+        );
+    };
+
+    var BoardContext = tripeg_logic.BoardContext = function(N) {
+        if (!(this instanceof BoardContext)) { return new BoardContext(N); }
+        var i,j;
+        this.N = N;
+        this.moves_for_position = [];
+        for (i=0; i<N; ++i) {
+            this.moves_for_position[i] = [];
+            for (j=0; j<=i; ++j) {
+                this.moves_for_position[i].push(this.position_possible_moves(Position(i,j),N));
+            }
+        }
+    };
+    BoardContext.prototype.create_board = function() {
+        return Board(this);
+    };
+    BoardContext.prototype.position_is_valid = function(p) {
+        return (p.i>=0 && p.i<this.N && p.j>=0 && p.j<=p.i);
+    };
+    BoardContext.prototype.position_possible_moves = function(p) {
+        var moves = [],
+        i, dir, dest;
+        for (i=0; i<six_directions.length; ++i) {
+            dir = six_directions[i];
+            dest = p.add(dir.times(2));
+            if (this.position_is_valid(dest)) {
+                moves.push(Move(p, p.add(dir), dest));
+            }
+        }
+        return moves;
+    };
 
     var Board = tripeg_logic.Board = function(boardContext) {
         if (!(this instanceof Board)) { return new Board(boardContext); }
@@ -252,15 +227,5 @@
         }
         return undefined;
     };
-
-
-  window.tripeg_logic = {
-      'Direction'      : Direction,
-      'Position'       : Position,
-      'Move'           : Move,
-      'BoardContext'   : BoardContext,
-      'Board'          : Board,
-      'six_directions' : six_directions
-      };
 
 }());
