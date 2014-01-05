@@ -32,9 +32,6 @@
   var q = (d - peg_radius) / Math.tan(Math.PI/6);
 
 
-  var frameno = 0;
-
-
   var board;
   var Position = tripeg_logic.Position;
 
@@ -313,11 +310,6 @@
       });
 
     board.draw();
-
-    $counter = $('#counter');
-    ++frameno;
-
-    $counter.text(frameno);
   }
 
   tripeg.moveToEmpty = function(p) {
