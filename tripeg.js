@@ -40,6 +40,7 @@
 
   var moves = [];
   var move;
+  var colors;
 
   function set_N(n) {
       N = n;
@@ -56,6 +57,7 @@
       $('#thecanvas').attr('height', canvas_height);
       ctx = $('#thecanvas')[0].getContext("2d");
       $('#container').css('width', (triangle_side_length + 2*pad) + 'px');
+      colors = makeColors(N);
       tripeg.reset();
   }
   tripeg.set_N = set_N;
@@ -64,22 +66,17 @@
     return N;
   }
 
-  var colorNames = {
-    'red' : '#FF0000',
-    'blue' : '#0000FF',
-    'yellow' : '#FFFF00'
-  };
-
   function divvy(n,k) {
-      // Return an array of k integers which sum to n.  Each integer in the list will be
-      // equal to either n/k (integer division), or n/k + 1.
-      var d = Math.floor(n/k),
+      // Return an array of k integers which sum to n.  The array will consist of
+      // r copies of q+1, followed by k-r copies of q, where q=n/k (integer division),
+      // and r = n % k.
+      var q = Math.floor(n/k),
           r = n % k,
           i,
           arr = [];
       for (i=0; i<k; ++i) {
-          if (i<r) { arr.push(d+1); }
-          else { arr.push(d); }
+          if (i<r) { arr.push(q+1); }
+          else { arr.push(q); }
       }
       return arr;
   }
@@ -89,12 +86,19 @@
     var colors = [];
     var numPegs = ( N * (N + 1) / 2 ) - 1;
     var clens = divvy(numPegs, 3);
-    var i;
-    for (i=0; i<clens[0]; ++i) { colors.push('red'); }
-    for (i=0; i<clens[1]; ++i) { colors.push('blue'); }
-    for (i=0; i<clens[2]; ++i) { colors.push('yellow'); }
-    return colors;
+    var i, k;
+    for (i=0; i<clens[0]; ++i) { colors.push('#FF0000'); } // red
+    for (i=0; i<clens[1]; ++i) { colors.push('#0000FF'); } // blue
+    for (i=0; i<clens[2]; ++i) { colors.push('#FFFF00'); } // yellow
+    var random_colors = [];
+    for (i=0; i<numPegs; ++i) {
+        k = Math.floor(colors.length * Math.random())
+        random_colors.push(colors[k]);
+        colors.splice(k,1);
+    }
+    return random_colors;
   }
+
   tripeg.point_in_triangle = function(x, y) {
       // return true iff (x,y) is inside the game triangle, false otherwise
       // This function depends on the fact that the topmost vertex of the triangle
@@ -146,28 +150,27 @@
   }
 
 
-  function Peg(color) {
-    return {
-      'moving'      : false,
-      'dest_i'      : undefined,
-      'dest_j'      : undefined,
-      'interpf'     : undefined,
-      'color'       : color,
-      'highlighted' : false,
-      'highlight'   : function (what) {
-          if (what) {
-              this.highlighted = true;
-              var p = board.get_empty_position();
-              this.dest_i = p.i;
-              this.dest_j = p.j;
-          } else {
-              this.highlighted = false;
-          }
-      }
+    var Peg = function (color) {
+        if (!(this instanceof Peg)) { return new Peg(color); }
+        this.moving      = false;
+        this.dest_i      = undefined;
+        this.dest_j      = undefined;
+        this.interpf     = undefined;
+        this.color       = color;
+        this.highlighted = false;
     };
-  }
+    Peg.prototype.highlight = function (what) {
+        if (what) {
+            this.highlighted = true;
+            var p = board.get_empty_position();
+            this.dest_i = p.i;
+            this.dest_j = p.j;
+        } else {
+            this.highlighted = false;
+        }
+    };
 
-  function Board(N) {
+    var Board = function(N) {
 
       var board = tripeg_logic.BoardContext(N).create_board();
 
@@ -382,14 +385,10 @@
     board = Board(N);
     tripeg.board = board;
 
-    var colors = makeColors(N);
-
+    var k=0;
       board.each_position(function(p) {
           if (p.i !== hole.i || p.j !== hole.j) {
-              k = Math.floor(colors.length * Math.random())
-              color = colorNames[ colors[k] ];
-              colors.splice(k,1);
-              board.insert_peg(p,Peg(color));
+              board.insert_peg(p,Peg(colors[k++]));
           }
         });
 
