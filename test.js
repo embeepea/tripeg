@@ -341,16 +341,16 @@ describe("Tripeg Logic", function () {
                 var b = (BoardContext(5)).create_board(), i, j;
                 for (i=-2; i<10; ++i) {
                     for (j=-2; j<10; ++j) {
-                        expect(b.get_peg(i,j)).toBeUndefined();
-                        expect(b.contains_peg(i,j)).toBe(false);
+                        expect(b.get_peg(Position(i,j))).toBeUndefined();
+                        expect(b.contains_peg(Position(i,j))).toBe(false);
                     }
                 }
             });
             it("should be able to insert a peg and get it back", function() {
                 var b = (BoardContext(5)).create_board();
                 b.insert_peg(Position(2,2),13);
-                expect(b.get_peg(2,2)).toEqual(13);
-                expect(b.contains_peg(2,2)).toEqual(true);
+                expect(b.get_peg(Position(2,2))).toEqual(13);
+                expect(b.contains_peg(Position(2,2))).toEqual(true);
             });
             it("numPegs should change from 0 to 1 when first peg is inserted", function() {
                 var b = (BoardContext(5)).create_board();
@@ -362,13 +362,13 @@ describe("Tripeg Logic", function () {
                 var b = (BoardContext(5)).create_board();
                 var b = (BoardContext(5)).create_board(), i, j;
                 b.insert_peg(Position(2,2),13);
-                expect(b.get_peg(2,2)).toEqual(13);
-                expect(b.contains_peg(2,2)).toEqual(true);
+                expect(b.get_peg(Position(2,2))).toEqual(13);
+                expect(b.contains_peg(Position(2,2))).toEqual(true);
                 for (i=-2; i<10; ++i) {
                     for (j=-2; j<10; ++j) {
                         if (! (i===2 && j===2)) {
-                            expect(b.get_peg(i,j)).toBeUndefined();
-                            expect(b.contains_peg(i,j)).toBe(false);
+                            expect(b.get_peg(Position(i,j))).toBeUndefined();
+                            expect(b.contains_peg(Position(i,j))).toBe(false);
                         }
                     }
                 }
@@ -406,9 +406,9 @@ describe("Tripeg Logic", function () {
             it("should remove a peg", function() {
                 b = (BoardContext(5)).create_board();
                 b.insert_peg(Position(2,2));
-                expect(b.contains_peg(2,2)).toBe(true);
+                expect(b.contains_peg(Position(2,2))).toBe(true);
                 b.remove_peg(Position(2,2));
-                expect(b.contains_peg(2,2)).toBe(false);
+                expect(b.contains_peg(Position(2,2))).toBe(false);
             });
         });
 
@@ -417,12 +417,12 @@ describe("Tripeg Logic", function () {
             it("should insert a peg everywhere except in the designated position", function() {
                 var b = (BoardContext(5)).create_board(), i, j;
                 b.insert_peg_everywhere_except(Position(2,2),42);
-                expect(b.contains_peg(2,2)).toBe(false);
+                expect(b.contains_peg(Position(2,2))).toBe(false);
                 for (i=0; i<5; ++i) {
                     for (j=0; j<=i; ++j) {
                         if (! (i===2 && j===2)) {
-                            expect(b.get_peg(i,j)).toEqual(42);
-                            expect(b.contains_peg(i,j)).toBe(true);
+                            expect(b.get_peg(Position(i,j))).toEqual(42);
+                            expect(b.contains_peg(Position(i,j))).toBe(true);
                         }
                     }
                 }
@@ -483,7 +483,7 @@ describe("Tripeg Logic", function () {
                 expect(b.numPegs).toBe(2);
                 var m = Move(Position(0,0),Position(1,0),Position(2,0));
                 b.move(m);
-                expect(b.contains_peg(0,0)).toBe(false);
+                expect(b.contains_peg(Position(0,0))).toBe(false);
                 expect(b.numPegs).toBe(1);
             });
             it("should correctly remove the jumpee position", function() {
@@ -494,7 +494,7 @@ describe("Tripeg Logic", function () {
                 var m = Move(Position(0,0),Position(1,0),Position(2,0));
                 b.move(m);
                 expect(b.numPegs).toBe(1);
-                expect(b.contains_peg(1,0)).toBe(false);
+                expect(b.contains_peg(Position(1,0))).toBe(false);
             });
             it("should correctly insert the destination position", function() {
                 var b = (BoardContext(5)).create_board();
@@ -503,7 +503,7 @@ describe("Tripeg Logic", function () {
                 expect(b.numPegs).toBe(2);
                 var m = Move(Position(0,0),Position(1,0),Position(2,0));
                 b.move(m);
-                expect(b.contains_peg(2,0)).toBe(true);
+                expect(b.contains_peg(Position(2,0))).toBe(true);
                 expect(b.numPegs).toBe(1);
             });
 
@@ -514,7 +514,7 @@ describe("Tripeg Logic", function () {
                 expect(b.N===c.N).toBe(true);
                 for (i=0; i<5; ++i) {
                     for (j=0; j<=i; ++j) {
-                        expect(b.get_peg(i,j) === c.get_peg(i,j)).toBe(true);
+                        expect(b.get_peg(Position(i,j)) === c.get_peg(Position(i,j))).toBe(true);
                     }
                 }
         }

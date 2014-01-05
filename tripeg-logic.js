@@ -117,18 +117,18 @@
             this.pegs[p.i][p.j] = undefined;
         }
     };
-    Board.prototype.get_peg = function(i,j) {
-        if (this.boardContext.position_is_valid(Position(i,j))) {
-            if (this.pegs[i] !== undefined) {
-                return this.pegs[i][j];
+    Board.prototype.get_peg = function(p) {
+        if (this.boardContext.position_is_valid(p)) {
+            if (this.pegs[p.i] !== undefined) {
+                return this.pegs[p.i][p.j];
             }
         }
         return undefined;
     };
-    Board.prototype.contains_peg = function(i,j) {
-        if (this.boardContext.position_is_valid(Position(i,j))) {
-            if (this.pegs[i] !== undefined) {
-                return (this.pegs[i][j] !== undefined);
+    Board.prototype.contains_peg = function(p) {
+        if (this.boardContext.position_is_valid(p)) {
+            if (this.pegs[p.i] !== undefined) {
+                return (this.pegs[p.i][p.j] !== undefined);
             }
         }
         return false;
@@ -138,7 +138,7 @@
         for (i=0; i<this.N; ++i) {
             arr.push("[");
             for (j=0; j<=i; ++j) {
-                arr.push(this.get_peg(i,j));
+                arr.push(this.get_peg(Position(i,j)));
                 if (j<i) { arr.push(","); }
             }
             arr.push("]");
@@ -158,9 +158,9 @@
     };
     Board.prototype.move_allowed = function(move) {
         var ans = (
-            this.contains_peg(move.jumper.i, move.jumper.j)
-                && this.contains_peg(move.jumpee.i, move.jumpee.j)
-                && !this.contains_peg(move.dest.i, move.dest.j)
+            this.contains_peg(move.jumper)
+                && this.contains_peg(move.jumpee)
+                && !this.contains_peg(move.dest)
                 && this.boardContext.position_is_valid(move.dest)
         );
         return (ans);
@@ -176,11 +176,12 @@
         this.numPegs = this.numPegs - 1;
     };
     Board.prototype.clone = function() {
-        var b = Board(this.boardContext), i, j;
+        var b = Board(this.boardContext), i, j, p;
         for (i=0; i<this.N; ++i) {
             for (j=0; j<=i; ++j) {
-                if (this.contains_peg(i,j)) {
-                    b.insert_peg(Position(i,j),this.get_peg(i,j));
+                p = Position(i,j);
+                if (this.contains_peg(p)) {
+                    b.insert_peg(p,this.get_peg(p));
                 }
             }
         }

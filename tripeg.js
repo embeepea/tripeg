@@ -43,7 +43,7 @@
 
   function set_N(n) {
       N = n;
-      hole = [0,0];
+      hole = Position(0,0);
       numPegs = ( N * (N + 1) / 2 ) - 1;
       triangle_side_length = 2*q + (N-1)*d;
       canvas_height = 2 * pad + f * triangle_side_length;
@@ -115,19 +115,20 @@
       return dx*dx + dy*dy;
   }
 
-    tripeg.point_in_peg = function(x,y) {
-        // return the position (as an array [x,y]) of the peg under the cursor, if any
+    tripeg.peg_position_under_point = function(x,y) {
+        // return the Position of the peg under the cursor, if any
         // return undefined if the cursor is not over a peg (including over an empty hole)
-        var i,j, p;
+        var i,j, c, p;
         for (i=0; i<N; ++i) {
-            p = peg_center(i,0);
-            if (y >= p[1] - peg_radius && y <= p[1] + peg_radius) {
+            c = peg_center(i,0);
+            if (y >= c[1] - peg_radius && y <= c[1] + peg_radius) {
                 for (j=0; j<=i; ++j) {
-                    if (board.contains_peg(i,j)) {
-                        p = peg_center(i,j);
-                        if (x >= p[0] - peg_radius && x <= p[0] + peg_radius) {
-                            if (l2dist2([x,y],p) < peg_radius_squared) {
-                                return [i,j];
+                    p = Position(i,j);
+                    if (board.contains_peg(p)) {
+                        c = peg_center(i,j);
+                        if (x >= c[0] - peg_radius && x <= c[0] + peg_radius) {
+                            if (l2dist2([x,y],c) < peg_radius_squared) {
+                                return p;
                             } else {
                                 return undefined;
                             }
@@ -157,8 +158,8 @@
           if (what) {
               this.highlighted = true;
               var p = board.get_empty_position();
-              this.dest_i = p[0];
-              this.dest_j = p[1];
+              this.dest_i = p.i;
+              this.dest_j = p.j;
           } else {
               this.highlighted = false;
           }
@@ -171,10 +172,11 @@
       var board = tripeg_logic.BoardContext(N).create_board();
 
      board.get_empty_position = function() {
-         var i, j;
+         var i, j, p;
          for (i=0; i<N; ++i) {
              for (j=0; j<=i; ++j) {
-                 if (!this.contains_peg(i,j)) { return [i,j]; }
+                 var p = Position(i,j);
+                 if (!this.contains_peg(p)) { return p; }
              }
          }
          return undefined;
@@ -331,7 +333,7 @@
   tripeg.moveToEmpty = function(p) {
       hole = p;
       var emptyp = board.get_empty_position();
-      var move = Move(Position(p[0],p[1]), undefined, Position(emptyp[0],emptyp[1]));
+      var move = Move(p, undefined, emptyp);
       moves.push(move);
       nextMove();
   };
@@ -397,7 +399,7 @@
 
       for (i=0; i<N; ++i) {
         for (j=0; j<=i; ++j) {
-          if (i !== hole[0] || j !== hole[1]) {
+          if (i !== hole.i || j !== hole.j) {
               k = Math.floor(colors.length * Math.random())
               color = colorNames[ colors[k] ];
               colors.splice(k,1);

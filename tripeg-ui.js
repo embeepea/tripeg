@@ -100,11 +100,12 @@
             if (peg_click_allowed) {
                 var peg_is_highlighted = false;
                 if (tripeg.point_in_triangle(event.offsetX, event.offsetY)) {
-                    var p = tripeg.point_in_peg(event.offsetX, event.offsetY);
+                    //var p = tripeg.point_in_peg(event.offsetX, event.offsetY);
+                    var p = tripeg.peg_position_under_point(event.offsetX, event.offsetY);
                     if (p) {
                         peg_is_highlighted = true;
                         highlighted_pos = p;
-                        highlighted_peg = tripeg.board.get_peg(p[0], p[1]);
+                        highlighted_peg = tripeg.board.get_peg(p);
                         if (!highlighted_peg.highlighted) {
                             highlighted_peg.highlight(true);
                             $('#thecanvas').css('cursor', 'pointer');
