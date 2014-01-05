@@ -348,20 +348,20 @@ describe("Tripeg Logic", function () {
             });
             it("should be able to insert a peg and get it back", function() {
                 var b = (BoardContext(5)).create_board();
-                b.insert_peg(2,2,13);
+                b.insert_peg(Position(2,2),13);
                 expect(b.get_peg(2,2)).toEqual(13);
                 expect(b.contains_peg(2,2)).toEqual(true);
             });
             it("numPegs should change from 0 to 1 when first peg is inserted", function() {
                 var b = (BoardContext(5)).create_board();
                 expect(b.numPegs).toBe(0);
-                b.insert_peg(2,2,13);
+                b.insert_peg(Position(2,2),13);
                 expect(b.numPegs).toBe(1);
             });
             it("after inserting just 1 peg, get_peg/contains/peg should still return undefined/false everywhere else", function() {
                 var b = (BoardContext(5)).create_board();
                 var b = (BoardContext(5)).create_board(), i, j;
-                b.insert_peg(2,2,13);
+                b.insert_peg(Position(2,2),13);
                 expect(b.get_peg(2,2)).toEqual(13);
                 expect(b.contains_peg(2,2)).toEqual(true);
                 for (i=-2; i<10; ++i) {
@@ -377,25 +377,25 @@ describe("Tripeg Logic", function () {
             it("numPegs should always reflect the correct number of pegs", function() {
                 var b = (BoardContext(5)).create_board();
                 expect(b.numPegs).toBe(0);
-                b.insert_peg(2,2);
+                b.insert_peg(Position(2,2));
                 expect(b.numPegs).toBe(1);
-                b.insert_peg(3,2);
+                b.insert_peg(Position(3,2));
                 expect(b.numPegs).toBe(2);
-                b.remove_peg(3,2);
+                b.remove_peg(Position(3,2));
                 expect(b.numPegs).toBe(1);
-                b.insert_peg(3,2);
+                b.insert_peg(Position(3,2));
                 expect(b.numPegs).toBe(2);
-                b.insert_peg(4,1);
+                b.insert_peg(Position(4,1));
                 expect(b.numPegs).toBe(3);
-                b.insert_peg(4,1);
+                b.insert_peg(Position(4,1));
                 expect(b.numPegs).toBe(3);
-                b.remove_peg(4,1);
+                b.remove_peg(Position(4,1));
                 expect(b.numPegs).toBe(2);
-                b.remove_peg(3,2);
+                b.remove_peg(Position(3,2));
                 expect(b.numPegs).toBe(1);
-                b.remove_peg(2,2);
+                b.remove_peg(Position(2,2));
                 expect(b.numPegs).toBe(0);
-                b.remove_peg(2,2);
+                b.remove_peg(Position(2,2));
                 expect(b.numPegs).toBe(0);
             });
 
@@ -405,9 +405,9 @@ describe("Tripeg Logic", function () {
         describe("remove_peg", function() {
             it("should remove a peg", function() {
                 b = (BoardContext(5)).create_board();
-                b.insert_peg(2,2);
+                b.insert_peg(Position(2,2));
                 expect(b.contains_peg(2,2)).toBe(true);
-                b.remove_peg(2,2);
+                b.remove_peg(Position(2,2));
                 expect(b.contains_peg(2,2)).toBe(false);
             });
         });
@@ -416,7 +416,7 @@ describe("Tripeg Logic", function () {
         describe("insert_peg_everywhere_except", function() {
             it("should insert a peg everywhere except in the designated position", function() {
                 var b = (BoardContext(5)).create_board(), i, j;
-                b.insert_peg_everywhere_except(2,2,42);
+                b.insert_peg_everywhere_except(Position(2,2),42);
                 expect(b.contains_peg(2,2)).toBe(false);
                 for (i=0; i<5; ++i) {
                     for (j=0; j<=i; ++j) {
@@ -442,28 +442,28 @@ describe("Tripeg Logic", function () {
             });
             it("should allow a valid move", function() {
                 var b = (BoardContext(5)).create_board();
-                b.insert_peg(0,0);
-                b.insert_peg(1,0);
+                b.insert_peg(Position(0,0));
+                b.insert_peg(Position(1,0));
                 var m = Move(Position(0,0),Position(1,0),Position(2,0));
                 expect(b.move_allowed(m)).toBe(true);
             });
             it("should not allow a move to an occupied destination", function() {
                 var b = (BoardContext(5)).create_board();
-                b.insert_peg(0,0);
-                b.insert_peg(1,0);
-                b.insert_peg(2,0);
+                b.insert_peg(Position(0,0));
+                b.insert_peg(Position(1,0));
+                b.insert_peg(Position(2,0));
                 var m = Move(Position(0,0),Position(1,0),Position(2,0));
                 expect(b.move_allowed(m)).toBe(false);
             });
             it("should not allow an emtpy spot to be jumped", function() {
                 var b = (BoardContext(5)).create_board();
-                b.insert_peg(0,0);
+                b.insert_peg(Position(0,0));
                 var m = Move(Position(0,0),Position(1,0),Position(2,0));
                 expect(b.move_allowed(m)).toBe(false);
             });
             it("should not allow a move from an unoccupied position", function() {
                 var b = (BoardContext(5)).create_board();
-                b.insert_peg(1,0);
+                b.insert_peg(Position(1,0));
                 var m = Move(Position(0,0),Position(1,0),Position(2,0));
                 expect(b.move_allowed(m)).toBe(false);
             });
@@ -478,8 +478,8 @@ describe("Tripeg Logic", function () {
             });
             it("should correctly remove the jumper position", function() {
                 var b = (BoardContext(5)).create_board();
-                b.insert_peg(0,0);
-                b.insert_peg(1,0);
+                b.insert_peg(Position(0,0));
+                b.insert_peg(Position(1,0));
                 expect(b.numPegs).toBe(2);
                 var m = Move(Position(0,0),Position(1,0),Position(2,0));
                 b.move(m);
@@ -488,8 +488,8 @@ describe("Tripeg Logic", function () {
             });
             it("should correctly remove the jumpee position", function() {
                 var b = (BoardContext(5)).create_board();
-                b.insert_peg(0,0);
-                b.insert_peg(1,0);
+                b.insert_peg(Position(0,0));
+                b.insert_peg(Position(1,0));
                 expect(b.numPegs).toBe(2);
                 var m = Move(Position(0,0),Position(1,0),Position(2,0));
                 b.move(m);
@@ -498,8 +498,8 @@ describe("Tripeg Logic", function () {
             });
             it("should correctly insert the destination position", function() {
                 var b = (BoardContext(5)).create_board();
-                b.insert_peg(0,0);
-                b.insert_peg(1,0);
+                b.insert_peg(Position(0,0));
+                b.insert_peg(Position(1,0));
                 expect(b.numPegs).toBe(2);
                 var m = Move(Position(0,0),Position(1,0),Position(2,0));
                 b.move(m);
@@ -528,7 +528,7 @@ describe("Tripeg Logic", function () {
             });
             it("board with one peg should clone properly (N=5)", function() {
                 var b = (BoardContext(5)).create_board();
-                b.insert_peg(0,0,1);
+                b.insert_peg(Position(0,0),1);
                 var c = b.clone();
                 check_board_clones(b,c);
             });
@@ -539,7 +539,7 @@ describe("Tripeg Logic", function () {
         describe("board_possible_moves method", function() {
             it("should return two moves for a new board with just one peg missing in slot 0,0", function() {
                 var b = (BoardContext(5)).create_board();
-                b.insert_peg_everywhere_except(0,0);
+                b.insert_peg_everywhere_except(Position(0,0));
                 var moves = b.board_possible_moves();
                 expect(moves.length).toBe(2);
             });
@@ -549,17 +549,17 @@ describe("Tripeg Logic", function () {
         describe("board_possible_moves method", function() {
             it("should solve a board", function() {
                 var b = (BoardContext(5)).create_board();
-                b.insert_peg_everywhere_except(0,0,1);
+                b.insert_peg_everywhere_except(Position(0,0),1);
                 var moves = b.solve().reverse();
                 expect(moves.length).toBe(13);
                 //console.log(map(moves, function(m) { return m.toString(); }).join("\n"));
             });
             it("should solve another board", function() {
                 var b = (BoardContext(5)).create_board();
-                b.insert_peg_everywhere_except(1,0,1);
+                b.insert_peg_everywhere_except(Position(1,0),1);
                 var moves = b.solve().reverse();
                 expect(moves.length).toBe(13);
-                console.log(map(moves, function(m) { return m.toString(); }).join("\n"));
+                //console.log(map(moves, function(m) { return m.toString(); }).join("\n"));
             });
         });
 

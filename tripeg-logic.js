@@ -93,28 +93,28 @@
         }
         this.numPegs = 0;
     };
-    Board.prototype.insert_peg = function(i,j,peg) {
-        if (this.boardContext.position_is_valid(Position(i,j))) {
+    Board.prototype.insert_peg = function(p,peg) {
+        if (this.boardContext.position_is_valid(p)) {
             if (peg === undefined) { peg = true; }
-            if (this.pegs[i] == undefined) {
-                this.pegs[i] = [];
+            if (this.pegs[p.i] == undefined) {
+                this.pegs[p.i] = [];
             } else {
                 // excption
             }
-            if (this.pegs[i][j] === undefined) {
+            if (this.pegs[p.i][p.j] === undefined) {
                 // only increment peg count if the position was unoccupied
                 this.numPegs = this.numPegs + 1;
             }
-            this.pegs[i][j] = peg;
+            this.pegs[p.i][p.j] = peg;
         }
     };
-    Board.prototype.remove_peg = function(i,j) {
-        if (this.boardContext.position_is_valid(Position(i,j))) {
-            if (this.pegs[i][j] !== undefined) {
+    Board.prototype.remove_peg = function(p) {
+        if (this.boardContext.position_is_valid(p)) {
+            if (this.pegs[p.i][p.j] !== undefined) {
                 // only decrement peg count if the position was occupied
                 this.numPegs = this.numPegs - 1;
             }
-            this.pegs[i][j] = undefined;
+            this.pegs[p.i][p.j] = undefined;
         }
     };
     Board.prototype.get_peg = function(i,j) {
@@ -147,11 +147,11 @@
         arr.push("]");
         return arr.join("");
     };
-    Board.prototype.insert_peg_everywhere_except = function(r,c,peg) {
+    Board.prototype.insert_peg_everywhere_except = function(p,peg) {
         for (i=0; i<this.N; ++i) {
             for (j=0; j<=i; ++j) {
-                if (!(i===r && j===c)) {
-                    this.insert_peg(i,j,peg);
+                if (!(i===p.i && j===p.j)) {
+                    this.insert_peg(Position(i,j),peg);
                 }
             }
         }
@@ -180,7 +180,7 @@
         for (i=0; i<this.N; ++i) {
             for (j=0; j<=i; ++j) {
                 if (this.contains_peg(i,j)) {
-                    b.insert_peg(i,j,this.get_peg(i,j));
+                    b.insert_peg(Position(i,j),this.get_peg(i,j));
                 }
             }
         }

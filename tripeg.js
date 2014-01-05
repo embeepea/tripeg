@@ -401,7 +401,7 @@
               k = Math.floor(colors.length * Math.random())
               color = colorNames[ colors[k] ];
               colors.splice(k,1);
-              board.insert_peg(i,j,Peg(color));
+              board.insert_peg(Position(i,j),Peg(color));
           }
         }
       }
