@@ -228,8 +228,7 @@
     // return a list of moves to solve this board, if possible
     // return the empty list [] if the board is already solved
     // return `undefined` if the board cannot be solved
-    Board.prototype.solve = function(level) {
-        if (level === undefined) { level = 1; }
+    Board.prototype.solve = function() {
         if (this.numPegs === 1) {
             return [];
         }
@@ -240,7 +239,7 @@
             move = possible_moves[i];
             var b = this.clone();
             b.move(move);
-            var moves = b.solve(level+1);
+            var moves = b.solve();
             if (moves !== undefined) {
                 var answer = moves.slice(0);
                 answer.push(move);
