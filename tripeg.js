@@ -21,8 +21,6 @@
 
   var ctx;
 
-  var interpf = 0.0;
-
   var scaleFactor = 2.0;
   var d = scaleFactor*50;
   var peg_radius = scaleFactor*18;
@@ -30,7 +28,6 @@
   var hole_radius = scaleFactor*8;
   var g = d - 2*peg_radius;
   var q = (d - peg_radius) / Math.tan(Math.PI/6);
-
 
   var board;
   var Position = tripeg_logic.Position;
@@ -121,12 +118,12 @@
         // return undefined if the cursor is not over a peg (including over an empty hole)
         var i,j, c, p;
         for (i=0; i<N; ++i) {
-            c = peg_center(i,0);
+            c = peg_center(Position(i,0));
             if (y >= c[1] - peg_radius && y <= c[1] + peg_radius) {
                 for (j=0; j<=i; ++j) {
                     p = Position(i,j);
                     if (board.contains_peg(p)) {
-                        c = peg_center(i,j);
+                        c = peg_center(p);
                         if (x >= c[0] - peg_radius && x <= c[0] + peg_radius) {
                             if (l2dist2([x,y],c) < peg_radius_squared) {
                                 return p;
@@ -187,19 +184,18 @@
 
       board.draw = function() {
           var i, j, peg,
-          moving_peg_i = undefined, moving_peg_j = undefined;
+          moving_peg_pos = undefined;
           this.each_position(function(p) {
               peg = board.pegs[p.i][p.j];
               if (peg !== undefined) {
                   if (peg.moving) {
-                      moving_peg_i = p.i;
-                      moving_peg_j = p.j;
+                      moving_peg_pos = p;
                   } else {
                       var color = peg.color;
                       if (peg.highlighted) {
-                          draw_displaced_disc(peg_center(p.i,p.j),
+                          draw_displaced_disc(peg_center(p),
                                               peg_radius,
-                                              peg_center(peg.dest_i, peg.dest_j),
+                                              peg_center(Position(peg.dest_i, peg.dest_j)),
                                               highlight_fraction,
                                               {
                                                   'fillStyle'   : peg.color,
@@ -207,7 +203,7 @@
                                                   'lineWidth'   : 6,
                                               });
                       } else {
-                          draw_disc(peg_center(p.i, p.j), peg_radius, {
+                          draw_disc(peg_center(p), peg_radius, {
                               'fillStyle'   : color,
                               'strokeStyle' : '#000000',
                               'lineWidth'   : 3,
@@ -216,11 +212,11 @@
                   }
               }
           });
-          if (moving_peg_i !== undefined) {
-              var peg = board.pegs[moving_peg_i][moving_peg_j];
-              draw_displaced_disc(peg_center(moving_peg_i, moving_peg_j),
+          if (moving_peg_pos !== undefined) {
+              var peg = board.pegs[moving_peg_pos.i][moving_peg_pos.j];
+              draw_displaced_disc(peg_center(moving_peg_pos),
                                   peg_radius,
-                                  peg_center(peg.dest_i, peg.dest_j),
+                                  peg_center(Position(peg.dest_i, peg.dest_j)),
                                   peg.interpf,
                                   {
                                       'fillStyle'   : peg.color,
@@ -234,9 +230,9 @@
       return board;
   }
 
-  function peg_center(i,j) {
-    return [ peg_base[0] + j * d - i * d / 2,
-             peg_base[1] + i * f * d ];
+  function peg_center(p) {
+    return [ peg_base[0] + p.j * d - p.i * d / 2,
+             peg_base[1] + p.i * f * d ];
   }
 
   var toRGBA = function(hexString, alpha) {
@@ -303,7 +299,7 @@
 
     // draw the holes
       board.each_position(function(p) {
-          c = peg_center(p.i,p.j);
+          c = peg_center(p);
           draw_disc(c, hole_radius, {
               'fillStyle' : '#000000'
           });
