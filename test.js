@@ -116,94 +116,79 @@ describe("Tripeg Logic", function () {
     });
 
 
-    describe("Board", function() {
-        it("should be able to create a Board", function () {
-            expect(typeof(Board)).toBe("function");
-            var b = (BoardContext(8)).create_board();
-            expect(b).not.toBeUndefined();
-            expect(b.getN()).toEqual(8);
+    describe("BoardContext", function() {
+        it("should be able to create a BoardContext", function () {
+            expect(typeof(BoardContext)).toBe("function");
+            var bc = BoardContext(8);
+            expect(bc).not.toBeUndefined();
+            expect(bc.N).toEqual(8);
         });
-        describe("N", function() {
-            it("getN method should exist", function () {
-                expect(typeof(b.getN)).toBe("function");
-            });
-            it("setN method should exist", function () {
-                expect(typeof(b.setN)).toBe("function");
-            });
-            it("N should default to 5", function () {
-                expect(b.getN()).toEqual(5);
-            });
-            it("should be able to setN, then get the same value with getN", function () {
-                b.setN(17);
-                expect(b.getN()).toEqual(17);
-            });
-        });
-
 
         describe("position_is_valid method", function() {
 
             it("method should exist", function () {
-                expect(typeof(b.position_is_valid)).toBe("function");
+                var bc = BoardContext(3);
+                expect(typeof(bc.position_is_valid)).toBe("function");
             });
 
             it("should return true for valid positions (N=5)", function () {
-                var b = (BoardContext(5)).create_board();
-                expect(b.position_is_valid(Position(0,0))).toBe(true);
-                expect(b.position_is_valid(Position(1,0))).toBe(true);
-                expect(b.position_is_valid(Position(1,1))).toBe(true);
-                expect(b.position_is_valid(Position(2,0))).toBe(true);
-                expect(b.position_is_valid(Position(2,1))).toBe(true);
-                expect(b.position_is_valid(Position(2,2))).toBe(true);
-                expect(b.position_is_valid(Position(3,0))).toBe(true);
-                expect(b.position_is_valid(Position(3,1))).toBe(true);
-                expect(b.position_is_valid(Position(3,2))).toBe(true);
-                expect(b.position_is_valid(Position(3,3))).toBe(true);
-                expect(b.position_is_valid(Position(4,0))).toBe(true);
-                expect(b.position_is_valid(Position(4,1))).toBe(true);
-                expect(b.position_is_valid(Position(4,2))).toBe(true);
-                expect(b.position_is_valid(Position(4,3))).toBe(true);
-                expect(b.position_is_valid(Position(4,4))).toBe(true);
+                var bc = BoardContext(5);
+                expect(bc.position_is_valid(Position(0,0))).toBe(true);
+                expect(bc.position_is_valid(Position(1,0))).toBe(true);
+                expect(bc.position_is_valid(Position(1,1))).toBe(true);
+                expect(bc.position_is_valid(Position(2,0))).toBe(true);
+                expect(bc.position_is_valid(Position(2,1))).toBe(true);
+                expect(bc.position_is_valid(Position(2,2))).toBe(true);
+                expect(bc.position_is_valid(Position(3,0))).toBe(true);
+                expect(bc.position_is_valid(Position(3,1))).toBe(true);
+                expect(bc.position_is_valid(Position(3,2))).toBe(true);
+                expect(bc.position_is_valid(Position(3,3))).toBe(true);
+                expect(bc.position_is_valid(Position(4,0))).toBe(true);
+                expect(bc.position_is_valid(Position(4,1))).toBe(true);
+                expect(bc.position_is_valid(Position(4,2))).toBe(true);
+                expect(bc.position_is_valid(Position(4,3))).toBe(true);
+                expect(bc.position_is_valid(Position(4,4))).toBe(true);
             });
             it("should return false for invalid positions (N=5)", function () {
-                var b = (BoardContext(5)).create_board();
-                expect(b.position_is_valid(Position(0,1))).toBe(false);
-                expect(b.position_is_valid(Position(1,-1))).toBe(false);
-                expect(b.position_is_valid(Position(1,2))).toBe(false);
-                expect(b.position_is_valid(Position(2,-1))).toBe(false);
-                expect(b.position_is_valid(Position(2,3))).toBe(false);
-                expect(b.position_is_valid(Position(3,-1))).toBe(false);
-                expect(b.position_is_valid(Position(3,4))).toBe(false);
-                expect(b.position_is_valid(Position(3,12))).toBe(false);
-                expect(b.position_is_valid(Position(4,-2))).toBe(false);
-                expect(b.position_is_valid(Position(4,5))).toBe(false);
-                expect(b.position_is_valid(Position(4,6))).toBe(false);
-                expect(b.position_is_valid(Position(5,0))).toBe(false);
-                expect(b.position_is_valid(Position(5,-1))).toBe(false);
-                expect(b.position_is_valid(Position(5,6))).toBe(false);
-                expect(b.position_is_valid(Position(5,3))).toBe(false);
+                var bc = BoardContext(5);
+                expect(bc.position_is_valid(Position(0,1))).toBe(false);
+                expect(bc.position_is_valid(Position(1,-1))).toBe(false);
+                expect(bc.position_is_valid(Position(1,2))).toBe(false);
+                expect(bc.position_is_valid(Position(2,-1))).toBe(false);
+                expect(bc.position_is_valid(Position(2,3))).toBe(false);
+                expect(bc.position_is_valid(Position(3,-1))).toBe(false);
+                expect(bc.position_is_valid(Position(3,4))).toBe(false);
+                expect(bc.position_is_valid(Position(3,12))).toBe(false);
+                expect(bc.position_is_valid(Position(4,-2))).toBe(false);
+                expect(bc.position_is_valid(Position(4,5))).toBe(false);
+                expect(bc.position_is_valid(Position(4,6))).toBe(false);
+                expect(bc.position_is_valid(Position(5,0))).toBe(false);
+                expect(bc.position_is_valid(Position(5,-1))).toBe(false);
+                expect(bc.position_is_valid(Position(5,6))).toBe(false);
+                expect(bc.position_is_valid(Position(5,3))).toBe(false);
             });
             it("should return true for valid positions (N=3)", function () {
-                var b = (BoardContext(3)).create_board();
-                expect(b.position_is_valid(Position(0,0))).toBe(true);
-                expect(b.position_is_valid(Position(1,0))).toBe(true);
-                expect(b.position_is_valid(Position(1,1))).toBe(true);
-                expect(b.position_is_valid(Position(2,0))).toBe(true);
-                expect(b.position_is_valid(Position(2,1))).toBe(true);
-                expect(b.position_is_valid(Position(2,2))).toBe(true);
+                var bc = BoardContext(3);
+                expect(bc.position_is_valid(Position(0,0))).toBe(true);
+                expect(bc.position_is_valid(Position(1,0))).toBe(true);
+                expect(bc.position_is_valid(Position(1,1))).toBe(true);
+                expect(bc.position_is_valid(Position(2,0))).toBe(true);
+                expect(bc.position_is_valid(Position(2,1))).toBe(true);
+                expect(bc.position_is_valid(Position(2,2))).toBe(true);
             });
             it("should return false for invalid positions (N=3)", function () {
-                var b = (BoardContext(3)).create_board();
-                expect(b.position_is_valid(Position(0,1))).toBe(false);
-                expect(b.position_is_valid(Position(1,-1))).toBe(false);
-                expect(b.position_is_valid(Position(1,2))).toBe(false);
-                expect(b.position_is_valid(Position(2,-1))).toBe(false);
-                expect(b.position_is_valid(Position(2,3))).toBe(false);
-                expect(b.position_is_valid(Position(3,-1))).toBe(false);
-                expect(b.position_is_valid(Position(3,0))).toBe(false);
-                expect(b.position_is_valid(Position(3,1))).toBe(false);
-                expect(b.position_is_valid(Position(3,2))).toBe(false);
-                expect(b.position_is_valid(Position(3,3))).toBe(false);
-                expect(b.position_is_valid(Position(3,4))).toBe(false);
+                var bc = BoardContext(3);
+                expect(bc.position_is_valid(Position(0,1))).toBe(false);
+                expect(bc.position_is_valid(Position(1,-1))).toBe(false);
+                expect(bc.position_is_valid(Position(1,2))).toBe(false);
+                expect(bc.position_is_valid(Position(2,-1))).toBe(false);
+                expect(bc.position_is_valid(Position(2,3))).toBe(false);
+                expect(bc.position_is_valid(Position(3,-1))).toBe(false);
+                expect(bc.position_is_valid(Position(3,0))).toBe(false);
+                expect(bc.position_is_valid(Position(3,1))).toBe(false);
+                expect(bc.position_is_valid(Position(3,2))).toBe(false);
+                expect(bc.position_is_valid(Position(3,3))).toBe(false);
+                expect(bc.position_is_valid(Position(3,4))).toBe(false);
             });
         });
 
@@ -211,24 +196,24 @@ describe("Tripeg Logic", function () {
         describe("position_possible_moves method", function() {
             describe("with N=5", function() {
                 it("Position(0,0) should have 2 possible moves", function() {
-                    var b = (BoardContext(5)).create_board();
-                    var moves = map(b.position_possible_moves(Position(0,0)),
+                    var bc = BoardContext(5);
+                    var moves = map(bc.position_possible_moves(Position(0,0)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(2);
                     expect(array_contains(moves, "(0,0) -> (1,0) -> (2,0)")).toBe(true);
                     expect(array_contains(moves, "(0,0) -> (1,1) -> (2,2)")).toBe(true);
                 });
                 it("Position(1,0) should have 2 possible moves", function() {
-                    var b = (BoardContext(5)).create_board();
-                    var moves = map(b.position_possible_moves(Position(1,0)),
+                    var bc = BoardContext(5);
+                    var moves = map(bc.position_possible_moves(Position(1,0)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(2);
                     expect(array_contains(moves, "(1,0) -> (2,0) -> (3,0)")).toBe(true);
                     expect(array_contains(moves, "(1,0) -> (2,1) -> (3,2)")).toBe(true);
                 });
                 it("Position(2,0) should have 4 possible moves", function() {
-                    var b = (BoardContext(5)).create_board();
-                    var moves = map(b.position_possible_moves(Position(2,0)),
+                    var bc = BoardContext(5);
+                    var moves = map(bc.position_possible_moves(Position(2,0)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(4);
                     expect(array_contains(moves, "(2,0) -> (1,0) -> (0,0)")).toBe(true);
@@ -237,24 +222,24 @@ describe("Tripeg Logic", function () {
                     expect(array_contains(moves, "(2,0) -> (3,0) -> (4,0)")).toBe(true);
                 });
                 it("Position(2,1) should have 2 possible moves", function() {
-                    var b = (BoardContext(5)).create_board();
-                    var moves = map(b.position_possible_moves(Position(2,1)),
+                    var bc = BoardContext(5);
+                    var moves = map(bc.position_possible_moves(Position(2,1)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(2);
                     expect(array_contains(moves, "(2,1) -> (3,1) -> (4,1)")).toBe(true);
                     expect(array_contains(moves, "(2,1) -> (3,2) -> (4,3)")).toBe(true);
                 });
                 it("Position(4,4) should have 2 possible moves", function() {
-                    var b = (BoardContext(5)).create_board();
-                    var moves = map(b.position_possible_moves(Position(4,4)),
+                    var bc = BoardContext(5);
+                    var moves = map(bc.position_possible_moves(Position(4,4)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(2);
                     expect(array_contains(moves, "(4,4) -> (3,3) -> (2,2)")).toBe(true);
                     expect(array_contains(moves, "(4,4) -> (4,3) -> (4,2)")).toBe(true);
                 });
                 it("Position(4,2) should have 4 possible moves", function() {
-                    var b = (BoardContext(5)).create_board();
-                    var moves = map(b.position_possible_moves(Position(4,2)),
+                    var bc = BoardContext(5);
+                    var moves = map(bc.position_possible_moves(Position(4,2)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(4);
                     expect(array_contains(moves, "(4,2) -> (3,1) -> (2,0)")).toBe(true);
@@ -266,32 +251,32 @@ describe("Tripeg Logic", function () {
 
             describe("with N=4", function() {
                 it("Position(0,0) should have 2 possible moves", function() {
-                    var b = (BoardContext(4)).create_board();
-                    var moves = map(b.position_possible_moves(Position(0,0)),
+                    var bc = BoardContext(4);
+                    var moves = map(bc.position_possible_moves(Position(0,0)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(2);
                     expect(array_contains(moves, "(0,0) -> (1,0) -> (2,0)")).toBe(true);
                     expect(array_contains(moves, "(0,0) -> (1,1) -> (2,2)")).toBe(true);
                 });
                 it("Position(1,0) should have 2 possible moves", function() {
-                    var b = (BoardContext(4)).create_board();
-                    var moves = map(b.position_possible_moves(Position(1,0)),
+                    var bc = BoardContext(4);
+                    var moves = map(bc.position_possible_moves(Position(1,0)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(2);
                     expect(array_contains(moves, "(1,0) -> (2,0) -> (3,0)")).toBe(true);
                     expect(array_contains(moves, "(1,0) -> (2,1) -> (3,2)")).toBe(true);
                 });
                 it("Position(2,0) should have 2 possible moves", function() {
-                    var b = (BoardContext(4)).create_board();
-                    var moves = map(b.position_possible_moves(Position(2,0)),
+                    var bc = BoardContext(4);
+                    var moves = map(bc.position_possible_moves(Position(2,0)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(2);
                     expect(array_contains(moves, "(2,0) -> (1,0) -> (0,0)")).toBe(true);
                     expect(array_contains(moves, "(2,0) -> (2,1) -> (2,2)")).toBe(true);
                 });
                 it("Position(2,1) should have 0 possible moves", function() {
-                    var b = (BoardContext(4)).create_board();
-                    var moves = map(b.position_possible_moves(Position(2,1)),
+                    var bc = BoardContext(4);
+                    var moves = map(bc.position_possible_moves(Position(2,1)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(0);
                 });
@@ -301,8 +286,8 @@ describe("Tripeg Logic", function () {
             describe("with N=7", function() {
                 it("Position(4,2) should have 6 possible moves", function() {
 
-                    var b = (BoardContext(7)).create_board();
-                    var moves = map(b.position_possible_moves(Position(4,2)),
+                    var bc = BoardContext(7);
+                    var moves = map(bc.position_possible_moves(Position(4,2)),
                                     function(x) { return x.toString(); });
                     expect(moves.length).toBe(6);
                     expect(array_contains(moves, "(4,2) -> (3,1) -> (2,0)")).toBe(true);
@@ -316,6 +301,21 @@ describe("Tripeg Logic", function () {
 
         });
 
+    });
+
+
+    describe("Board", function() {
+        it("should be able to create a Board", function () {
+            expect(typeof(Board)).toBe("function");
+            var b = (BoardContext(8)).create_board();
+            expect(b).not.toBeUndefined();
+        });
+        it("board should receive the N value from its context", function () {
+            expect(typeof(Board)).toBe("function");
+            var b = (BoardContext(8)).create_board();
+            expect(b).not.toBeUndefined();
+            expect(b.N).toEqual(8);
+        });
         describe("insert_peg / contain_peg / get_peg / numPegs", function() {
             it("insert_peg method should exist", function() {
                 var b = (BoardContext(5)).create_board();
@@ -511,7 +511,7 @@ describe("Tripeg Logic", function () {
 
         function check_board_clones(b,c) {
                 var i,j;
-                expect(b.getN()===c.getN()).toBe(true);
+                expect(b.N===c.N).toBe(true);
                 for (i=0; i<5; ++i) {
                     for (j=0; j<=i; ++j) {
                         expect(b.get_peg(i,j) === c.get_peg(i,j)).toBe(true);

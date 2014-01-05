@@ -1,23 +1,20 @@
 (function() {
 
-    function map(arr, func) {
-        var ans = [], i;
-        for (i=0; i<arr.length; ++i) {
-            ans.push(func(arr[i]));
-        }
-        return ans;
-    }
+  var tripeg_logic = {};
+  window.tripeg_logic = {};
 
-  var Direction = function(i,j) {
-    return {
-      'i' : i,
-      'j' : j,
-      'times' : function(f) {
-        return Direction(this.i * f, this.j * f);
-      },
-      'toString' : function() { return 'Dir(' + this.i + ',' + this.j + ')'; }
-    };
+  var Direction = tripeg_logic.Direction = function(i,j) {
+    if (!(this instanceof Direction)) { return new Direction(i,j); }
+    this.i = i;
+    this.j = j;
   };
+  Direction.prototype.times = function(f) {
+      return Direction(this.i * f, this.j * f);
+  };
+  Direction.prototype.toString = function() {
+    return 'Dir(' + this.i + ',' + this.j + ')';
+  };
+
 
 //    
 //    
@@ -50,34 +47,19 @@
     Direction(1,1)
   ];
 
-    function position_is_valid(i,j,N) {
-        return (i>=0 && i<N && j>=0 && j<=i);
-    };
-
-    function position_possible_moves(p,N) {
-        var moves = [],
-            i, dir, dest;
-        for (i=0; i<six_directions.length; ++i) {
-            dir = six_directions[i];
-            dest = p.add(dir.times(2));
-            if (position_is_valid(dest.i,dest.j,N)) {
-                moves.push(Move(p, p.add(dir), dest));
-            }
-        }
-        return moves;
-    };
-
-
-  var Position = function(i,j) {
-    return {
-      'i' : i,
-      'j' : j,
-      'toString' : function() { return 'Pos(' + this.i + ',' + this.j + ')'; },
-      'add' : function(direction) {
-        return Position(this.i + direction.i, this.j + direction.j);
-      }
-    };
+  var Position = tripeg_logic.Position = function(i,j) {
+    if (!(this instanceof Position)) { return new Position(i,j); }
+    this.i = i;
+    this.j = j;
   };
+  Position.prototype.toString = function() {
+      return 'Pos(' + this.i + ',' + this.j + ')';
+  };
+  Position.prototype.add = function(direction) {
+      return Position(this.i + direction.i, this.j + direction.j);
+  };
+
+
 
   var Move = function(jumper, jumpee, dest) {
     return {
@@ -90,21 +72,35 @@
     };
   };
 
-  var BoardContext = function(N) {
-      var i,j, possible_moves_by_position = [];
+  var BoardContext = tripeg_logic.BoardContext = function(N) {
+      var i,j;
+      if (!(this instanceof BoardContext)) { return new BoardContext(N); }
+      this.N = N;
+      this.moves_for_position = [];
       for (i=0; i<N; ++i) {
-          possible_moves_by_position[i] = [];
+          this.moves_for_position[i] = [];
           for (j=0; j<=i; ++j) {
-              possible_moves_by_position[i].push(position_possible_moves(Position(i,j),N));
+              this.moves_for_position[i].push(this.position_possible_moves(Position(i,j),N));
           }
       }
-      return {
-          'N' : N,
-          'possible_moves_by_position' : possible_moves_by_position,
-          'create_board' : function() {
-              return Board(this);
+  };
+  BoardContext.prototype.create_board = function() {
+      return Board(this);
+  };
+  BoardContext.prototype.position_is_valid = function(p) {
+      return (p.i>=0 && p.i<this.N && p.j>=0 && p.j<=p.i);
+  };
+  BoardContext.prototype.position_possible_moves = function(p) {
+      var moves = [],
+      i, dir, dest;
+      for (i=0; i<six_directions.length; ++i) {
+          dir = six_directions[i];
+          dest = p.add(dir.times(2));
+          if (this.position_is_valid(dest)) {
+              moves.push(Move(p, p.add(dir), dest));
           }
-      };
+      }
+      return moves;
   };
 
 
@@ -116,25 +112,14 @@
               pegs[i][j] = undefined;
           }
       }
-      
+
       return {
           'boardContext' : boardContext,
           'N' : boardContext.N,
           'pegs' : pegs,
           'numPegs' : 0,
-          'possible_moves_by_position' : boardContext.possible_moves_by_position,
-          'setN' : function (N) {
-              this.N = N;
-          },
-          'getN' : function (N) {
-              return this.N;
-          },
-          'position_is_valid' : function(p) {
-              return position_is_valid(p.i,p.j,this.N);
-              //return (p.i>=0 && p.i<this.N && p.j>=0 && p.j<=p.i);
-          },
           'insert_peg' : function(i,j,peg) {
-              if (this.position_is_valid(Position(i,j))) {
+              if (this.boardContext.position_is_valid(Position(i,j))) {
                   if (peg === undefined) { peg = true; }
                   if (this.pegs[i] == undefined) {
                       this.pegs[i] = [];
@@ -149,7 +134,7 @@
               }
           },
           'remove_peg' : function(i,j) {
-              if (this.position_is_valid(Position(i,j))) {
+              if (this.boardContext.position_is_valid(Position(i,j))) {
                   if (this.pegs[i][j] !== undefined) {
                       // only decrement peg count if the position was occupied
                       this.numPegs = this.numPegs - 1;
@@ -158,7 +143,7 @@
               }
           },
           'get_peg' : function(i,j) {
-              if (this.position_is_valid(Position(i,j))) {
+              if (this.boardContext.position_is_valid(Position(i,j))) {
                   if (this.pegs[i] !== undefined) {
                       return this.pegs[i][j];
                   }
@@ -166,7 +151,7 @@
               return undefined;
           },
           'contains_peg' : function(i,j) {
-              if (this.position_is_valid(Position(i,j))) {
+              if (this.boardContext.position_is_valid(Position(i,j))) {
                   if (this.pegs[i] !== undefined) {
                       return (this.pegs[i][j] !== undefined);
                   }
@@ -201,7 +186,7 @@
                   this.contains_peg(move.jumper.i, move.jumper.j)
                       && this.contains_peg(move.jumpee.i, move.jumpee.j)
                       && !this.contains_peg(move.dest.i, move.dest.j)
-                      && this.position_is_valid(move.dest)
+                      && this.boardContext.position_is_valid(move.dest)
               );
               return (ans);
           },
@@ -217,7 +202,7 @@
           },
           'clone' : function() {
               var b = Board(this.boardContext), i, j;
-              for (i=0; i<this.getN(); ++i) {
+              for (i=0; i<this.N; ++i) {
                   for (j=0; j<=i; ++j) {
                       if (this.contains_peg(i,j)) {
                           b.insert_peg(i,j,this.get_peg(i,j));
@@ -226,15 +211,12 @@
               }
               return b;
           },
-          'position_possible_moves' : function(p) {
-              return position_possible_moves(p,this.N);
-          },
           'board_possible_moves' : function() {
               var moves = [], i, j, k;
               for (i=0; i<this.N; ++i) {
                   for (j=0; j<=i; ++j) {
                       //var moves_this_pos = this.position_possible_moves(Position(i,j));
-                      var moves_this_pos = this.possible_moves_by_position[i][j];
+                      var moves_this_pos = this.boardContext.moves_for_position[i][j];
                       for (k=0; k<moves_this_pos.length; ++k) {
                           var move = moves_this_pos[k];
                           if (this.move_allowed(move)) {
