@@ -288,9 +288,7 @@
 
   tripeg.moveToEmpty = function(p) {
       hole = p;
-      var emptyp = board.get_empty_position();
-      var move = Move(p, undefined, emptyp);
-      moves.push(move);
+      moves.push(AnimationMove(Move(p, undefined, board.get_empty_position())));
       nextMove();
   };
 
@@ -301,26 +299,44 @@
             this.moving_peg.moving = true;
             this.moving_peg.interpf = 0;
             this.moving_peg.dest  = dest;
-            this.step();
         };
-        obj.step = function(n) {
-            if (n === undefined) { n = 0; }
+        var n = 0;
+        obj.step = function() {
             if (n < stepsPerMove) {
-                setTimeout(function() {
-                    n += 1;
-                    obj.moving_peg.interpf = n / stepsPerMove;
-                    requestAnimationFrame(function() {
-                        draw();
-                        obj.step(n);
-                    });
-                }, frameDelayMS);
-            } else {
-                this.end();
+                n += 1;
+                obj.moving_peg.interpf = n / stepsPerMove;
+                return false;
             }
+            return true;
         };
         obj.end = function() {
             this.moving_peg.moving = false;
             board.move(this);
+        };
+        return obj;
+    };
+
+    var AnimationMove = tripeg.AnimationMove = function(move) {
+        var obj = {};
+        obj.begin = function() {
+            move.begin();
+            obj.step();
+        };
+        obj.step = function() {
+            var done = move.step();
+            if (done) {
+                obj.end();
+            } else {
+                setTimeout(function() {
+                    requestAnimationFrame(function() {
+                        draw();
+                        obj.step();
+                    });
+                }, frameDelayMS);
+            }
+        };
+        obj.end = function() {
+            move.end();
             requestAnimationFrame(function() {
                 draw();
                 setTimeout(function() { nextMove() }, interMoveDelay);
@@ -378,7 +394,7 @@
 
     for (i=0; i<tmoves.length; ++i) {
         var tm = tmoves[i];
-        moves.push(Move(tm.jumper, tm.jumpee, tm.dest));
+        moves.push(AnimationMove(Move(tm.jumper, tm.jumpee, tm.dest)));
     }
 
     if (donefunc !== undefined) {
