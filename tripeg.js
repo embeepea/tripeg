@@ -145,28 +145,28 @@
 
 
     var Peg = function (color) {
-        if (!(this instanceof Peg)) { return new Peg(color); }
-        this.moving      = false;
-        this.dest        = undefined;
-        this.interpf     = undefined;
-        this.color       = color;
-        this.highlighted = false;
-    };
-    Peg.prototype.highlight = function (what) {
-        if (what) {
-            this.highlighted = true;
-            var p = board.get_empty_position();
-            this.dest = p;
-        } else {
-            this.highlighted = false;
-        }
+        obj = {}
+        obj.moving      = false;
+        obj.dest        = undefined;
+        obj.interpf     = undefined;
+        obj.color       = color;
+        obj.highlighted = false;
+        obj.highlight   = function (do_highlight) {
+            if (do_highlight) {
+                this.highlighted = true;
+                this.dest = board.get_empty_position();
+            } else {
+                this.highlighted = false;
+            }
+        };
+        return obj;
     };
 
     var Board = function(N) {
 
-      var board = tripeg_logic.BoardContext(N).create_board();
+      var obj = tripeg_logic.BoardContext(N).create_board();
 
-      board.get_empty_position = function() {
+      obj.get_empty_position = function() {
          var i, j, p;
          for (i=0; i<N; ++i) {
              for (j=0; j<=i; ++j) {
@@ -177,14 +177,13 @@
          return undefined;
      };
 
-     var highlight_opacity = 0.4;
      var highlight_fraction = 0.1;
 
-      board.draw = function() {
+      obj.draw = function() {
           var i, j, peg,
           moving_peg_pos = undefined;
           this.each_position(function(p) {
-              peg = board.pegs[p.i][p.j];
+              peg = obj.pegs[p.i][p.j];
               if (peg !== undefined) {
                   if (peg.moving) {
                       moving_peg_pos = p;
@@ -198,7 +197,7 @@
                                               {
                                                   'fillStyle'   : peg.color,
                                                   'strokeStyle' : '#000000',
-                                                  'lineWidth'   : 6,
+                                                  'lineWidth'   : 3,
                                               });
                       } else {
                           draw_disc(peg_center(p), peg_radius, {
@@ -211,7 +210,7 @@
               }
           });
           if (moving_peg_pos !== undefined) {
-              var peg = board.pegs[moving_peg_pos.i][moving_peg_pos.j];
+              var peg = obj.pegs[moving_peg_pos.i][moving_peg_pos.j];
               draw_displaced_disc(peg_center(moving_peg_pos),
                                   peg_radius,
                                   peg_center(peg.dest),
@@ -225,7 +224,7 @@
 
       };
 
-      return board;
+      return obj;
   }
 
   function peg_center(p) {
@@ -295,32 +294,31 @@
       nextMove();
   };
 
-    function Move(jumper, jumpee, dest) {
-        var move = tripeg_logic.Move(jumper, jumpee, dest);
-        move.begin = function() {
+    var Move = tripeg.Move = function(jumper, jumpee, dest) {
+        var obj = tripeg_logic.Move(jumper, jumpee, dest);
+        obj.begin = function() {
             this.moving_peg = board.pegs[jumper.i][jumper.j];
             this.moving_peg.moving = true;
             this.moving_peg.interpf = 0;
             this.moving_peg.dest  = dest;
             this.step();
         };
-        move.step = function(n) {
-            var move = this;
+        obj.step = function(n) {
             if (n === undefined) { n = 0; }
             if (n < stepsPerMove) {
                 setTimeout(function() {
                     n += 1;
-                    move.moving_peg.interpf = n / stepsPerMove;
+                    obj.moving_peg.interpf = n / stepsPerMove;
                     requestAnimationFrame(function() {
                         draw();
-                        move.step(n);
+                        obj.step(n);
                     });
                 }, frameDelayMS);
             } else {
                 this.end();
             }
         };
-        move.end = function() {
+        obj.end = function() {
             this.moving_peg.moving = false;
             board.move(this);
             requestAnimationFrame(function() {
@@ -328,8 +326,8 @@
                 setTimeout(function() { nextMove() }, interMoveDelay);
             });
         };
-        return move;
-    }
+        return obj;
+    };
 
   function nextMove() {
     if (moves.length > 0) {
@@ -339,7 +337,6 @@
     }
   }
 
-  tripeg.Move = Move;
   tripeg.moves = moves;
   tripeg.nextMove = nextMove();
 
