@@ -323,7 +323,7 @@
             obj.step();
         };
         obj.step = function() {
-            var done = move.step();
+            var done = (move.step === undefined) || move.step();
             if (done) {
                 obj.end();
             } else {
@@ -336,7 +336,9 @@
             }
         };
         obj.end = function() {
-            move.end();
+            if (move.end !== undefined) {
+                move.end();
+            }
             requestAnimationFrame(function() {
                 draw();
                 setTimeout(function() { nextMove() }, interMoveDelay);
