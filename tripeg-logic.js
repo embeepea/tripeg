@@ -206,7 +206,7 @@
         });
         return b;
     };
-    Board.prototype.board_possible_moves = function() {
+    Board.prototype.possible_moves = function() {
         var moves = [], i, j, k;
         var board = this;
         this.each_position(function(p) {
@@ -234,7 +234,7 @@
             return [];
         }
         var i;
-        var possible_moves = this.board_possible_moves();
+        var possible_moves = this.possible_moves();
         var move;
         for (i=0; i<possible_moves.length; ++i) {
             move = possible_moves[i];

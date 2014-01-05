@@ -535,18 +535,17 @@ describe("Tripeg Logic", function () {
         });
 
 
-        // still need: tests for 'board_possible_moves' method
-        describe("board_possible_moves method", function() {
+        // still need: tests for 'possible_moves' method
+        describe("possible_moves method", function() {
             it("should return two moves for a new board with just one peg missing in slot 0,0", function() {
                 var b = (BoardContext(5)).create_board();
                 b.insert_peg_everywhere_except(Position(0,0));
-                var moves = b.board_possible_moves();
+                var moves = b.possible_moves();
                 expect(moves.length).toBe(2);
             });
         });
 
-
-        describe("board_possible_moves method", function() {
+        describe("possible_moves method", function() {
             it("should solve a board", function() {
                 var b = (BoardContext(5)).create_board();
                 b.insert_peg_everywhere_except(Position(0,0),1);
