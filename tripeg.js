@@ -233,25 +233,6 @@
              peg_base[1] + p.i * f * d ];
   }
 
-  var toRGBA = function(hexString, alpha) {
-     var i = 0,
-         r, rHexString,
-         g, gHexString,
-         b, bHexString;
-     if (alpha === undefined) {
-         alpha = 1.0;
-     }
-     if (hexString.length == 7) { i = 1; }
-     else if (hexString.length == 8) { i = 2; }
-     rHexString = hexString.substring(i,i+2);
-     gHexString = hexString.substring(i+2,i+4);
-     bHexString = hexString.substring(i+4,i+6);
-     r = parseInt(rHexString, 16);
-     g = parseInt(gHexString, 16);
-     b = parseInt(bHexString, 16);
-     return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-  };
-
   function draw_displaced_disc(center, radius, dest, fraction, options) {
       var c = [ linear_interpolate(fraction, center[0], dest[0]),
                 linear_interpolate(fraction, center[1], dest[1]) ]
