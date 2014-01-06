@@ -3,7 +3,9 @@ Triangle Peg Puzzle
 
 This is a little program that I wrote just for fun to solve the triangle peg puzzle.
 
-![puzzle image](./puzzle.jpg?raw=true)
+<p align="center">
+  <img src="./puzzle.jpg?raw=true"/>
+</p>
 
 The goal is to remove pegs, one at a time, by jumping one peg over another, and to
 end up with just one peg remaining.
