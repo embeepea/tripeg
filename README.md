@@ -1,18 +1,20 @@
 Triangle Peg Puzzle
 -------------------
 
-This is a little program that I wrote just for fun to solve the triangle peg puzzle.
+This is a little program that I wrote just for fun to solve the triangle peg puzzle:
 
 <p align="center">
   <img src="./puzzle.jpg?raw=true"/>
 </p>
 
-The goal is to remove pegs, one at a time, by jumping one peg over another, and to
-end up with just one peg remaining.
+The goal of the puzzle is to remove pegs, one at a time, by jumping
+one peg over another, ending with just one peg remaining.
 
-This program uses a depth first search of all possible moves to find a sequence of moves
-that solves the puzzle.
+This program uses a depth first search of all possible moves to find a
+sequence of moves that solves the puzzle.
 
-It's written in JavaScript and uses the HTML5 canvas element to animate the solution.
+It's written in JavaScript and uses the HTML5 canvas element to
+animate the solution.
 
-You can see a working version of the program [here](http://www.geomtech.com/tripeg).
+You can see a working version of the program
+[here](http://www.geomtech.com/tripeg).
