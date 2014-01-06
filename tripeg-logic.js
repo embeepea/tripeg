@@ -226,6 +226,20 @@
         obj.each_position = function(f,g) {
             this.boardContext.each_position(f,g);
         };
+
+
+      obj.get_empty_position = function() {
+         var i, j, p;
+         for (i=0; i<this.N; ++i) {
+             for (j=0; j<=i; ++j) {
+                 var p = Position(i,j);
+                 if (!this.contains_peg(p)) { return p; }
+             }
+         }
+         return undefined;
+     };
+
+
         
         // return a list of moves to solve this board, if possible
         // return the empty list [] if the board is already solved

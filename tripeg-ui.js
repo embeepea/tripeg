@@ -107,7 +107,7 @@
                         highlighted_pos = p;
                         highlighted_peg = tripeg.board.get_peg(p);
                         if (!highlighted_peg.highlighted) {
-                            highlighted_peg.highlight(true);
+                            highlighted_peg.highlight(true, tripeg.board.get_empty_position());
                             $('#thecanvas').css('cursor', 'pointer');
                             tripeg.request_draw();
                             return;
