@@ -2,22 +2,23 @@
  * returns an object that can be used to manage asynchronous animations
  * in a browser.  Invoke it like this to create an animator object:
  * 
- * var animator = window.animator.Animator({
- *     'frameDelayMS' : NUMBER
- *     'interActionDelay' : NUMBER
- *     'draw' : FUNCTION
- * });
+ *     var animator = window.animator.Animator({
+ *         'frameDelayMS' : NUMBER
+ *         'interActionDelay' : NUMBER
+ *         'draw' : FUNCTION
+ *     });
  * 
- * `frameDelayMS` and `interActionDelay` should be numbers that give, in
- * milliseconds, the desired delay between animation frames, and between
- * animation "actions" (see below).  `draw` should be a function which
- * takes no arguments and which draws a single frame of the animation
- * (for example, it can be a function which draws in a canvas element).
+ * `frameDelayMS` and `interActionDelay` should be numbers that give
+ * the desired delay (in milliseconds) between animation frames, and
+ * between animation "actions" (see below), respectively.  `draw`
+ * should be a function which takes no arguments and which draws a
+ * single frame of the animation (for example, it can be a function
+ * which draws in a canvas element).
  * 
  * The animator object maintains a queue of "actions" to be animated; the
  * `add_action(action)` method adds an action to this queue.  An action
  * is an object which has properties named `begin`, `step`, and `end`,
- * whose values should be functions.  When the animator "plays" an
+ * whose values are functions.  When the animator "plays" an
  * action, it calls the action's `begin` method, then calls the action's
  * `step` method repeatedly until it returns a truthy value, and finally
  * calls the action's `done` method.

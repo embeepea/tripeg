@@ -1,3 +1,39 @@
+/* This file contains code that solves the triangle puzzle, including
+ * various objects that represent the puzzle and moves that change its
+ * state.  This file has no external dependencies and does not do any
+ * graphics or DOM manipulation.  The basic usage is as follows:
+ *
+ *    1. call `Board(N)` to create a "Board" object having N rows
+ *    2. populate the board with "pegs"; the easiest way to do this is
+ *       by calling its `insert_peg_everywhere_except(pos,peg)`
+ *       method, where `pos` is a `Position` object giving one
+ *       location to be left empty, and `peg` is a value to be
+ *       inserted into every other position on the board (the value of
+ *       the peg doesn't matter; any value other than `undefined` will
+ *       do).
+ *    3. call the Board's `solve` method to find a solution; `solve`
+ *       returns an array of `Move` objects in reverse order --- the
+ *       first element in the array is the final move of the solution,
+ *       and the last array element is the first move of the solution.
+ *
+ * For example, here's a little program that you can run with node.js
+ * to print out the solution to a 5-row board (save this to a file
+ * called solve.js and type `node solve.js`):
+ *
+ *    window = {};
+ *    require('./tripeg-logic');
+ *    tl = window.tripeg_logic;
+ *    board = tl.Board(5);
+ *    board.insert_peg_everywhere_except(tl.Position(0,0),true);
+ *    moves = board.solve().reverse();
+ *    for (i=0; i<moves.length; ++i) {
+ *      console.log(moves[i].toString());
+ *    }
+ *
+ * Note that this code works well for boards with 4, 5, or 6 rows.
+ * With 7 or more rows, the search for the solution takes long enough
+ * that I have never had the patience to wait for it to finish.
+ */ 
 (function() {
 
     var tripeg_logic = window.tripeg_logic = {};
@@ -105,7 +141,13 @@
         return obj;
     };
 
-    var Board = tripeg_logic.Board = function(boardContext) {
+    var Board = tripeg_logic.Board = function(arg) {
+        var boardContext;
+        if (typeof(arg)==="number") {
+            boardContext = BoardContext(arg);
+        } else {
+            boardContext = arg;
+        }
         var obj = {};
         var i,j;
         obj.boardContext = boardContext;
@@ -228,16 +270,16 @@
         };
 
 
-      obj.get_empty_position = function() {
-         var i, j, p;
-         for (i=0; i<this.N; ++i) {
-             for (j=0; j<=i; ++j) {
-                 var p = Position(i,j);
-                 if (!this.contains_peg(p)) { return p; }
-             }
-         }
-         return undefined;
-     };
+        obj.get_empty_position = function() {
+            var i, j, p;
+            for (i=0; i<this.N; ++i) {
+                for (j=0; j<=i; ++j) {
+                    var p = Position(i,j);
+                    if (!this.contains_peg(p)) { return p; }
+                }
+            }
+            return undefined;
+        };
 
 
         

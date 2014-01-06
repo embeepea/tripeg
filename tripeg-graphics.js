@@ -221,7 +221,7 @@
         };
 
         obj.reset = function() {
-            board = tripeg_logic.BoardContext(N).create_board();
+            board = tripeg_logic.Board(N);
             var k=0;
             board.each_position(function(p) {
                 if (p.i !== hole.i || p.j !== hole.j) {
