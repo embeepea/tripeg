@@ -1,5 +1,7 @@
 (function($) {
 
+    var tripeg;
+
     var peg_click_allowed = true;
 
     var maxrows = 6;
@@ -20,11 +22,19 @@
         }, 500);
     }
 
+    function ui_reset() {
+        $('#thecanvas').attr('width', tripeg.canvas_width);
+        $('#thecanvas').attr('height', tripeg.canvas_height);
+        $('#container').css('width', (tripeg.canvas_width) + 'px');
+        tripeg.reset();
+    }
+
     function incr_N(d) {
         var N = tripeg.get_N();
         N = N + d;
         if (N >= minrows && N <= maxrows) {
             tripeg.set_N(N);
+            ui_reset();
             tripeg.request_draw();
         }
         if (N <= minrows) {
@@ -45,6 +55,9 @@
     $(document).ready(function() {
 
         $('#splash-message-container').hide();
+
+        tripeg = tripeg_graphics.Tripeg($('#thecanvas')[0].getContext("2d"), 5);
+        ui_reset();
 
         click_peg_to_emtpy_message();
 
@@ -105,9 +118,9 @@
                     if (p) {
                         peg_is_highlighted = true;
                         highlighted_pos = p;
-                        highlighted_peg = tripeg.board.get_peg(p);
+                        highlighted_peg = tripeg.get_peg(p);
                         if (!highlighted_peg.highlighted) {
-                            highlighted_peg.highlight(true, tripeg.board.get_empty_position());
+                            highlighted_peg.highlight(true, tripeg.get_empty_position());
                             $('#thecanvas').css('cursor', 'pointer');
                             tripeg.request_draw();
                             return;
