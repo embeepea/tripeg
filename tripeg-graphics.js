@@ -88,7 +88,7 @@
             q = (d - peg_radius) / Math.tan(Math.PI/6),
             frameDelayMS = 10, // ms delay between frames
             globalStepsPerMove = 10, // number of steps per move
-            interMoveDelay = 1.5 * frameDelayMS * globalStepsPerMove;
+            interMoveDelayMS = 1.5 * frameDelayMS * globalStepsPerMove;
 
         function peg_center(p) {
             return [ peg_base[0] + p.j * d - p.i * d / 2,
@@ -298,7 +298,7 @@
 
         obj.moveToEmpty = function(p) {
             hole = p;
-            animator.add_move(this.Move(p, undefined, board.get_empty_position()));
+            animator.add_action(this.Move(p, undefined, board.get_empty_position()));
             animator.play();
         };
 
@@ -330,10 +330,10 @@
             tmoves = tmoves.reverse();
             for (i=0; i<tmoves.length; ++i) {
                 var tm = tmoves[i];
-                animator.add_move(this.Move(tm.jumper, tm.jumpee, tm.dest));
+                animator.add_action(this.Move(tm.jumper, tm.jumpee, tm.dest));
             }
             if (donefunc !== undefined) {
-                animator.add_move({
+                animator.add_action({
                     'begin' : donefunc
                 });
             }
@@ -343,7 +343,7 @@
         obj.set_N(Nvalue);
         animator = window.animator.Animator({
             'frameDelayMS' : frameDelayMS,
-            'interMoveDelay' : interMoveDelay,
+            'interMoveDelayMS' : interMoveDelayMS,
             'draw' : draw
         });
         return obj;

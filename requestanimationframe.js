@@ -1,3 +1,7 @@
+/*
+ * This is Paul Irish's requestAnimationFrame, from
+ *      http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
+ */
 (function() {
     "use strict";
 
