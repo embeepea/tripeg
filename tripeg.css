@@ -24,14 +24,14 @@
   width:  80px;
   position: absolute;
   top: 40px;
-  left: 20px;
+  left: 0px;
 }
 
 #right-buttons {
   width:  80px;
   position: absolute;
   top: 40px;
-  right: 20px;
+  right: 0px;
 }
 
 #right-buttons button {
@@ -71,6 +71,7 @@ background-color: #ff0000;
   font-weight: bold;
   font-size: 18px;
   margin-top: 10px;
+  margin-bottom: 20px;
   height: 20px;
 /*  background-color: #ff0000; */
 }

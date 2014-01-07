@@ -30,10 +30,10 @@
     }
 
     function incr_N(d) {
-        var N = tripeg.get_N();
+        var N = tripeg.get_rows();
         N = N + d;
         if (N >= minrows && N <= maxrows) {
-            tripeg.set_N(N);
+            tripeg.set_rows(N);
             ui_reset();
             tripeg.request_draw();
         }
@@ -68,20 +68,20 @@
             peg_click_allowed = false;
             $('#message').html("Thinking...");
             setTimeout(function() {
-                tripeg.play(
-                    function() {
+                tripeg.solve({
+                    'done' : function() {
                         $('#rotate-left').prop('disabled', false);
                     },
-                    function() {
+                    'nosolution' : function() {
                         splash("No solution");
                         $('#rotate-left').prop('disabled', false);
                         $('#play').prop('disabled', false);
                         peg_click_allowed = true;
                     },
-                    function (ms) {
+                    'timelog' : function (ms) {
                         $('#message').html('Solution computed in ' + ms + ' ms');
                     }
-                );
+                });
             }, 10);
         });
         $('#rotate-left').click(function() {
@@ -114,7 +114,7 @@
                 var peg_is_highlighted = false;
                 if (tripeg.point_in_triangle(event.offsetX, event.offsetY)) {
                     //var p = tripeg.point_in_peg(event.offsetX, event.offsetY);
-                    var p = tripeg.peg_position_under_point(event.offsetX, event.offsetY);
+                    var p = tripeg.peg_position_under_point([event.offsetX, event.offsetY]);
                     if (p) {
                         peg_is_highlighted = true;
                         highlighted_pos = p;
