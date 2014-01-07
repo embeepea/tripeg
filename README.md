@@ -26,28 +26,30 @@ The code files are:
   it could be used verbatim to create a command-line program to print the solution; see
   the comments in the file for details.
   
-* **tripeg-graphics.js**
+* [**tripeg-graphics.js**](https://github.com/embeepea/tripeg/blob/master/tripeg-graphics.js)
 
   Contains code that uses the HTML5 canvas element to draw and animate the puzzle.
   
-* **tripeg-ui.js**, **index.html**, and **tripeg.css**
+* [**tripeg-ui.js**](https://github.com/embeepea/tripeg/blob/master/tripeg-ui.js),
+  [**index.html**](https://github.com/embeepea/tripeg/blob/master/index.html), and
+  [**tripeg.css**](https://github.com/embeepea/tripeg/blob/master/tripeg.css)
 
   These files use [jQuery](http://jquery.com), [Twitter Bootstrap](http://getbootstrap.com),
   and *tripeg-graphics.js* to create a user
   interface for the puzzle in a browser window.  The button icons are from
   [Font Awesome](http://fontawesome.io/).
 
-* **animator.js**
+* [**animator.js**](https://github.com/embeepea/tripeg/blob/master/animator.js)
 
   A little utility that I wrote to help manage sequences of animations in the browser.
   
-* **requestanimationframe.js**
+* [**requestanimationframe.js**](https://github.com/embeepea/tripeg/blob/master/requestanimationframe.js)
 
   This is Paul Irish's [requestAnimationFrame polyfill](http://www.paulirish.com/2011/requestanimationframe-for-smart-animating).
   The code in *animator.js* uses requestAnimationFrame to cause the
   browser to call custom drawing code on the next screen update.
 
-* **spec/**
+* [**spec/**](https://github.com/embeepea/tripeg/blob/master/spec)
 
   This subdirectory contains a suite of [Jasmine](http://pivotal.github.io/jasmine/)
   unit tests for *tripeg-logic.js*; to run them, simply view *spec/index.html* file
