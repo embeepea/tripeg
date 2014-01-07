@@ -7,14 +7,16 @@
     var maxrows = 6;
     var minrows = 4;
 
-    function click_peg_to_emtpy_message() {
-        $('#message').html("Click to change the initial empty position");
+    var click_a_peg_message = "Click a peg to change the initial empty position";
+
+    function display_message(msg) {
+        $('#message').html(msg);
     }
     function clear_message() {
         $('#message').html(" ");
     }
 
-    function splash(txt) {
+    function splash_message(txt) {
         $('#splash-message').html(txt);
         $('#splash-message-container').show();
         setTimeout(function() {
@@ -29,9 +31,9 @@
         tripeg.reset();
     }
 
-    function incr_N(d) {
+    function change_rows(incr) {
         var N = tripeg.get_rows();
-        N = N + d;
+        N = N + incr;
         if (N >= minrows && N <= maxrows) {
             tripeg.set_rows(N);
             ui_reset();
@@ -47,7 +49,7 @@
         } else {
             $('#plus').prop('disabled', false);
         }
-        click_peg_to_emtpy_message();
+        display_message(click_a_peg_message);
         $('#play').prop('disabled', false);
         peg_click_allowed = true;
     }
@@ -59,7 +61,7 @@
         tripeg = tripeg_graphics.Tripeg($('#thecanvas')[0].getContext("2d"), 5);
         ui_reset();
 
-        click_peg_to_emtpy_message();
+        display_message(click_a_peg_message);
 
         $('#play').click(function() {
             var $icon = $(this).find('i');
@@ -73,7 +75,7 @@
                         $('#rotate-left').prop('disabled', false);
                     },
                     'nosolution' : function() {
-                        splash("No solution");
+                        splash_message("No solution");
                         $('#rotate-left').prop('disabled', false);
                         $('#play').prop('disabled', false);
                         peg_click_allowed = true;
@@ -86,16 +88,16 @@
         });
         $('#rotate-left').click(function() {
             tripeg.reset();
-            click_peg_to_emtpy_message();
+            display_message(click_a_peg_message);
             $('#play').prop('disabled', false);
             peg_click_allowed = true;
         }).prop('disabled', true);
 
         $('#plus').click(function() {
-            incr_N(1);
+            change_rows(1);
         });
         $('#minus').click(function() {
-            incr_N(-1);
+            change_rows(-1);
         });
 
         var highlighted_peg = undefined;
