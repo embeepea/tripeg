@@ -1,3 +1,17 @@
+/* This file defines a single function, tripeg_graphics.Tripeg, which
+ * returns an object that can draw and animate the triangle peg puzzle
+ * in an HTML5 canvas element:
+ *
+ *    var tripeg_graphics = tripeg_graphics.Tripeg(canvasContext)
+ *
+ * canvasContext should be the 2d context object associated with a
+ * canvas element.  This file does not depend on jQuery or do any DOM
+ * manipulation; the returned tripeg_graphics object simply contains
+ * methods for doing the drawing and animation.
+ *
+ * This file uses tripeg-logic.js, which must be loaded before this
+ * one.
+ */
 (function() {
 
     var tripeg_graphics = window.tripeg_graphics = {};
@@ -5,9 +19,10 @@
     var Position = tripeg_logic.Position;
 
     function divvy(n,k) {
-        // Return an array of k integers which sum to n.  The array will consist of
-        // r copies of q+1, followed by k-r copies of q, where q=n/k (integer division),
-        // and r = n % k.
+        // Utility function to return an array of k integers which sum
+        // to n.  The array will consist of r copies of q+1, followed
+        // by k-r copies of q, where q=n/k (integer division), and
+        // r = n % k.
         var q = Math.floor(n/k),
         r = n % k,
         i,
@@ -19,17 +34,15 @@
         return arr;
     }
 
-
-    function makeColors(N) {
+    function makeColors(n) {
         var colors = [];
-        var numPegs = ( N * (N + 1) / 2 ) - 1;
-        var clens = divvy(numPegs, 3);
+        var clens = divvy(n, 3);
         var i, k;
         for (i=0; i<clens[0]; ++i) { colors.push('#FF0000'); } // red
         for (i=0; i<clens[1]; ++i) { colors.push('#0000FF'); } // blue
         for (i=0; i<clens[2]; ++i) { colors.push('#FFFF00'); } // yellow
         var random_colors = [];
-        for (i=0; i<numPegs; ++i) {
+        for (i=0; i<n; ++i) {
             k = Math.floor(colors.length * Math.random())
             random_colors.push(colors[k]);
             colors.splice(k,1);
@@ -65,34 +78,33 @@
         return obj;
     };
 
-    tripeg_graphics.Tripeg = function(canvasContext, Nvalue) {
+    tripeg_graphics.Tripeg = function(canvasContext, N) {
 
-        var N,
-            ctx = canvasContext,
+        var numRows,
             board,
             hole,
-            numPegs,
             triangle_side_length,
             peg_base,
             triangle_vertices,
             colors,
             animator,
-            pad = 15;
-            f = Math.sqrt(3)/2,
-            scaleFactor = 2.0,
-            d = scaleFactor*50,
-            peg_radius = scaleFactor*18,
-            peg_radius_squared = peg_radius*peg_radius,
-            hole_radius = scaleFactor*8,
-            g = d - 2*peg_radius,
-            q = (d - peg_radius) / Math.tan(Math.PI/6),
-            frameDelayMS = 10, // ms delay between frames
-            globalStepsPerMove = 10, // number of steps per move
-            interMoveDelayMS = 1.5 * frameDelayMS * globalStepsPerMove;
+            ctx                    = canvasContext,
+            pad                    = 0, // (pixels, padding around triangle in canvas)
+            sqrt3halves            = Math.sqrt(3)/2,
+            scaleFactor            = 2.0, // changes relative size of everything
+            distance_between_holes = scaleFactor*50, // pixels
+            peg_radius             = scaleFactor*18, // pixels
+            peg_radius_squared     = peg_radius*peg_radius,
+            hole_radius            = scaleFactor*8,  // pixels
+            gap_between_pegs       = distance_between_holes - 2*peg_radius,
+            cornerPad              = (distance_between_holes - peg_radius) / Math.tan(Math.PI/6),
+            frameDelayMS           = 10, // ms delay between frames
+            stepsPerMove           = 10, // number of animation steps per move
+            delayBetweenMovesMS    = 1.5 * frameDelayMS * stepsPerMove;
 
         function peg_center(p) {
-            return [ peg_base[0] + p.j * d - p.i * d / 2,
-                     peg_base[1] + p.i * f * d ];
+            return [ peg_base[0] + p.j * distance_between_holes - p.i * distance_between_holes / 2,
+                     peg_base[1] + p.i * sqrt3halves * distance_between_holes ];
         }
 
         function draw_displaced_disc(center, radius, dest, fraction, options) {
@@ -202,26 +214,28 @@
 
         obj = {};
 
-        obj.set_N = function(Nvalue) {
-            N = Nvalue;
+        obj.set_rows = function(N) {
+            numRows = N;
             hole = Position(0,0);
-            numPegs = ( N * (N + 1) / 2 ) - 1;
-            triangle_side_length = 2*q + (N-1)*d;
-            this.canvas_height = 2 * pad + f * triangle_side_length;
+            triangle_side_length = 2*cornerPad + (numRows-1)*distance_between_holes;
+            this.canvas_height = 2 * pad + sqrt3halves * triangle_side_length;
             this.canvas_width = 2 * pad + triangle_side_length;
-            peg_base = [pad + triangle_side_length/2, pad + q + g - 3];
-            triangle_vertices = [ [pad + triangle_side_length/2, pad],								  // top vertex
-                                  [pad + triangle_side_length,   pad + f * triangle_side_length],     // lower right vertex
-                                  [pad,                          pad + f * triangle_side_length] ];   // lower left vertex
-            colors = makeColors(N);
+            peg_base = [pad + triangle_side_length/2,
+                        pad + cornerPad + gap_between_pegs - 6];
+            triangle_vertices = [
+                [pad + triangle_side_length/2, pad],								        // top
+                [pad + triangle_side_length,   pad + sqrt3halves * triangle_side_length],   // lower right
+                [pad,                          pad + sqrt3halves * triangle_side_length]    // lower left
+            ];
+            colors = makeColors(tripeg_logic.BoardContext(numRows).num_slots()-1);
         };
 
-        obj.get_N = function() {
-            return N;
+        obj.get_rows = function() {
+            return numRows;
         };
 
         obj.reset = function() {
-            board = tripeg_logic.Board(N);
+            board = tripeg_logic.Board(numRows);
             var k=0;
             board.each_position(function(p) {
                 if (p.i !== hole.i || p.j !== hole.j) {
@@ -232,7 +246,6 @@
         };
 
         obj.Move = function(jumper, jumpee, dest) {
-            var stepsPerMove = globalStepsPerMove; // number of steps per move
             var move = tripeg_logic.Move(jumper, jumpee, dest);
             move.begin = function() {
                 this.moving_peg = board.pegs[jumper.i][jumper.j];
@@ -274,7 +287,7 @@
             // return the Position of the peg under the cursor, if any
             // return undefined if the cursor is not over a peg (including over an empty hole)
             var i,j, c, p;
-            for (i=0; i<N; ++i) {
+            for (i=0; i<numRows; ++i) {
                 c = peg_center(Position(i,0));
                 if (y >= c[1] - peg_radius && y <= c[1] + peg_radius) {
                     for (j=0; j<=i; ++j) {
@@ -339,10 +352,10 @@
             animator.play();
         };
 
-        obj.set_N(Nvalue);
+        obj.set_rows(N);
         animator = window.animator.Animator({
-            'frameDelayMS' : frameDelayMS,
-            'interMoveDelayMS' : interMoveDelayMS,
+            'frameDelayMS'       : frameDelayMS,
+            'interActionDelayMS' : delayBetweenMovesMS,
             'draw' : draw
         });
         return obj;
