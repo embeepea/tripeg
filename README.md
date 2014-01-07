@@ -32,7 +32,8 @@ The code files are:
   
 * **tripeg-ui.js**, **index.html**, and **tripeg.css**
 
-  These files use jQuery, Twitter Bootstrap, and *tripeg-graphics.js* to create a user
+  These files use [jQuery](http://jquery.com), [Twitter Bootstrap](http://getbootstrap.com),
+  and *tripeg-graphics.js* to create a user
   interface for the puzzle in a browser window.  The button icons are from
   [Font Awesome](http://fontawesome.io/).
 
