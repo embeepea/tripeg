@@ -19,7 +19,7 @@ Files
 
 The code files are:
 
-* **tripeg-logic.js**
+* [**tripeg-logic.js**](https://github.com/embeepea/tripeg/blob/master/tripeg-logic.js)
 
   Contains the structures and logic to solve the puzzle.  This file is self-contained,
   in the sense that it has no external dependencies and it does no graphics or DOM manipulation;
