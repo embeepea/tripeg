@@ -1,6 +1,8 @@
 (function($) {
 
-    var tripeg;
+    var tg = window.tripeg_graphics;
+
+    var trGraphics;
 
     var peg_click_allowed = true;
 
@@ -25,19 +27,19 @@
     }
 
     function ui_reset() {
-        $('#thecanvas').attr('width', tripeg.canvas_width);
-        $('#thecanvas').attr('height', tripeg.canvas_height);
-        $('#container').css('width', (tripeg.canvas_width) + 'px');
-        tripeg.reset();
+        $('#thecanvas').attr('width', trGraphics.canvas_width);
+        $('#thecanvas').attr('height', trGraphics.canvas_height);
+        $('#container').css('width', (trGraphics.canvas_width) + 'px');
+        trGraphics.reset();
     }
 
     function change_rows(incr) {
-        var N = tripeg.get_rows();
+        var N = trGraphics.get_rows();
         N = N + incr;
         if (N >= minrows && N <= maxrows) {
-            tripeg.set_rows(N);
+            trGraphics.set_rows(N);
             ui_reset();
-            tripeg.request_draw();
+            trGraphics.request_draw();
         }
         if (N <= minrows) {
             $('#minus').prop('disabled', true);
@@ -58,7 +60,7 @@
 
         $('#splash-message-container').hide();
 
-        tripeg = tripeg_graphics.Tripeg($('#thecanvas')[0].getContext("2d"), 5);
+        trGraphics = tg.TripegGraphics($('#thecanvas')[0].getContext("2d"), 5);
         ui_reset();
 
         display_message(click_a_peg_message);
@@ -70,7 +72,7 @@
             peg_click_allowed = false;
             $('#message').html("Thinking...");
             setTimeout(function() {
-                tripeg.solve({
+                trGraphics.solve({
                     'done' : function() {
                         $('#rotate-left').prop('disabled', false);
                     },
@@ -87,7 +89,7 @@
             }, 10);
         });
         $('#rotate-left').click(function() {
-            tripeg.reset();
+            trGraphics.reset();
             display_message(click_a_peg_message);
             $('#play').prop('disabled', false);
             peg_click_allowed = true;
@@ -107,24 +109,24 @@
             if (highlighted_peg !== undefined) {
                 highlighted_peg.highlight(false);
                 highlighted_peg = undefined;
-                tripeg.moveToEmpty(highlighted_pos);
+                trGraphics.moveToEmpty(highlighted_pos);
             }
         });
 
         $('#thecanvas').mousemove(function(event) {
             if (peg_click_allowed) {
                 var peg_is_highlighted = false;
-                if (tripeg.point_in_triangle(event.offsetX, event.offsetY)) {
+                if (trGraphics.point_in_triangle(event.offsetX, event.offsetY)) {
                     //var p = tripeg.point_in_peg(event.offsetX, event.offsetY);
-                    var p = tripeg.peg_position_under_point([event.offsetX, event.offsetY]);
+                    var p = trGraphics.peg_position_under_point([event.offsetX, event.offsetY]);
                     if (p) {
                         peg_is_highlighted = true;
                         highlighted_pos = p;
-                        highlighted_peg = tripeg.get_peg(p);
+                        highlighted_peg = trGraphics.get_peg(p);
                         if (!highlighted_peg.highlighted) {
-                            highlighted_peg.highlight(true, tripeg.get_empty_position());
+                            highlighted_peg.highlight(true, trGraphics.get_empty_position());
                             $('#thecanvas').css('cursor', 'pointer');
-                            tripeg.request_draw();
+                            trGraphics.request_draw();
                             return;
                         }
                     }
@@ -133,7 +135,7 @@
                     highlighted_peg.highlight(false);
                     highlighted_peg = undefined;
                     $('#thecanvas').css('cursor', 'default');
-                    tripeg.request_draw();
+                    trGraphics.request_draw();
                 }
             }
         });

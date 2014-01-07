@@ -1,8 +1,8 @@
-/* This file defines a single function, tripeg_graphics.Tripeg, which
+/* This file defines a single function, tripeg_graphics.TripegGraphics, which
  * returns an object that can draw and animate the triangle peg puzzle
  * in an HTML5 canvas element:
  *
- *    var tripeg_graphics = tripeg_graphics.Tripeg(canvasContext)
+ *    var tripeg_graphics = tripeg_graphics.TripegGraphics(canvasContext)
  *
  * canvasContext should be the 2d context object associated with a
  * canvas element.  This file does not depend on jQuery or do any DOM
@@ -91,9 +91,9 @@
     };
 
     //
-    // Create a new Tripeg object for animating a puzzle board with N rows:
+    // Create a new TripegGraphics object for animating a puzzle board with N rows:
     //
-    tripeg_graphics.Tripeg = function(canvasContext, N) {
+    tripeg_graphics.TripegGraphics = function(canvasContext, N) {
 
         // Note: throughout this object, the phrase "2D point" means a JS
         // array of length 2, containing the pixel coordinates of a point
