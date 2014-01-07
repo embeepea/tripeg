@@ -12,10 +12,9 @@
  * This file uses tripeg-logic.js, which must be loaded before this
  * one.
  */
-(function() {
+(function(tripeg_logic) {
 
     var tripeg_graphics = window.tripeg_graphics = {};
-    var tripeg_logic = window.tripeg_logic;
     var Position = tripeg_logic.Position;
 
     function divvy(n,k) {
@@ -436,4 +435,4 @@
         return obj;
     };
 
-}());
+}(window.tripeg_logic));

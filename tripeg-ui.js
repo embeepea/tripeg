@@ -3,10 +3,9 @@
  * display and user interface for the triangle puzzle.  This files uses jQuery and
  * tripeg-graphics.js.
  */
-(function($) {
+(function($,tripeg_graphics) {
 
-    var tg = window.tripeg_graphics,
-        peg_click_allowed = true,
+    var peg_click_allowed = true,
         maxrows = 6,
         minrows = 4,
         click_a_peg_message = "Click a peg to change the initial empty position",
@@ -66,7 +65,7 @@
 
         $('#splash-message-container').hide();
 
-        trGraphics = tg.TripegGraphics($('#thecanvas')[0].getContext("2d"), 5);
+        trGraphics = tripeg_graphics.TripegGraphics($('#thecanvas')[0].getContext("2d"), 5);
         reset();
 
         display_message(click_a_peg_message);
@@ -145,4 +144,4 @@
 
     });
 
-}(jQuery));
+}(jQuery,window.tripeg_graphics));
