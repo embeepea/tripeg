@@ -1,7 +1,7 @@
 Triangle Peg Puzzle
 ===================
 
-This is a little program that I wrote just for fun to solve the triangle peg puzzle:
+This is a little program that I wrote just for fun to solve this triangle peg puzzle:
 
 <p align="center">
   <img src="./puzzle.jpg?raw=true"/>
