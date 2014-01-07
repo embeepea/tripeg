@@ -1,6 +1,7 @@
 /*
- * This file works along with the accompanying index.html file to create a graphics
- * display and user interface for the triangle puzzle.  This files uses jQuery and
+ * This file works along with the accompanying index.html and
+ * tripeg.css files to create a graphics display and user interface
+ * for the triangle puzzle.  This files uses jQuery and
  * tripeg-graphics.js.
  */
 (function($,tripeg_graphics) {

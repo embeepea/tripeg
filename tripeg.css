@@ -1,19 +1,6 @@
 .btn {
   width: 80px;
   border: 1px solid black;
-/*
-  width: 100px;
-  height: 100px;
- */
-}
-
-.button-spacer {
-  width: 100px;
-  height: 100px;
-  background-color: #ff0000;
-}
-
-#wrapper {
 }
 
 #canvas-controls-container {
@@ -36,12 +23,6 @@
 
 #right-buttons button {
   margin-bottom: 10px;
-}
-
-#controls-container {
-  margin: 0 auto;
-  width: 180px;
-background-color: #ff0000;
 }
 
 #container {
@@ -73,15 +54,6 @@ background-color: #ff0000;
   margin-top: 10px;
   margin-bottom: 20px;
   height: 20px;
-/*  background-color: #ff0000; */
-}
-
-#canvasdiv {
-/*  background-color: #00ff00; */
-}
-
-#controls {
-/*  background-color: #0000ff; */
 }
 
 #footer {
