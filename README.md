@@ -49,6 +49,7 @@ The code files are:
 
 * **spec/**
 
-  This subdirectory contains a suite of Jasmine unit tests for
+  This subdirectory contains a suite of
+  (Jasmine)[http://pivotal.github.io/jasmine/] unit tests for
   *tripeg-logic.js*; to run them, simply view *spec/index.html* file
   in a browser.
