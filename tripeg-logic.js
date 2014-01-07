@@ -12,9 +12,8 @@
  *       the peg doesn't matter; any value other than `undefined` will
  *       do).
  *    3. call the Board's `solve` method to find a solution; `solve`
- *       returns an array of `Move` objects in reverse order --- the
- *       first element in the array is the final move of the solution,
- *       and the last array element is the first move of the solution.
+ *       returns an array of `Move` objects, each of which represents
+ *       a single peg jump/removal step.
  *
  * For example, here's a little program that you can run with node.js
  * to print out the solution to a 5-row board (save this to a file
@@ -25,7 +24,7 @@
  *    tl = window.tripeg_logic;
  *    board = tl.Board(5);
  *    board.insert_peg_everywhere_except(tl.Position(0,0),true);
- *    moves = board.solve().reverse();
+ *    moves = board.solve();
  *    for (i=0; i<moves.length; ++i) {
  *      console.log(moves[i].toString());
  *    }
@@ -38,28 +37,11 @@
 
     var tripeg_logic = window.tripeg_logic = {};
 
-    var Direction = tripeg_logic.Direction = function(i,j) {
-        var obj = {};
-        obj.i = i;
-        obj.j = j;
-        obj.times = function(f) {
-            return Direction(this.i * f, this.j * f);
-        };
-        obj.toString = function() {
-            return 'Dir(' + this.i + ',' + this.j + ')';
-        };
-        return obj;
-    };
-
-    var six_directions = tripeg_logic.six_directions = [
-        Direction(0,1),        // straight right
-        Direction(-1,0),       // up & right      
-        Direction(-1,-1),      // up & left       
-        Direction(0,-1),       // straight left 
-        Direction(1,0),        // down & left     
-        Direction(1,1)         // down & right    
-    ];
-
+    // a Position object stores a location of a slot
+    // on the board.  It has two properties: `i` is the
+    // row number, and `j` is the position of the slot
+    // within that row.  Both `i` and `j` start with 0, so
+    // the top corner position corresponds to Position(0,0).
     var Position = tripeg_logic.Position = function(i,j) {
         var obj = {};
         obj.i = i;
@@ -67,12 +49,44 @@
         obj.toString = function() {
             return 'Pos(' + this.i + ',' + this.j + ')';
         };
-        obj.add = function(direction) {
-            return Position(this.i + direction.i, this.j + direction.j);
+        // return a new Position obtained by adding an offset
+        obj.add = function(offset) {
+            return Position(this.i + offset.i, this.j + offset.j);
         };
         return obj;
     };
 
+    // an Offset object stores a relative offset from a position
+    var Offset = tripeg_logic.Offset = function(i,j) {
+        var obj = {};
+        obj.i = i;
+        obj.j = j;
+        // return a new offset obtained by multiplying the row
+        // and column values of this offset by a common factor:
+        obj.times = function(f) {
+            return Offset(this.i * f, this.j * f);
+        };
+        obj.toString = function() {
+            return 'Offset(' + this.i + ',' + this.j + ')';
+        };
+        return obj;
+    };
+
+    // the Offsets of the six "potential" positions which are
+    // "adjacent" to a given position:
+    var six_neighbors = tripeg_logic.six_neighbors = [
+        Offset(0,1),        // straight right
+        Offset(-1,0),       // up & right      
+        Offset(-1,-1),      // up & left       
+        Offset(0,-1),       // straight left 
+        Offset(1,0),        // down & left     
+        Offset(1,1)         // down & right    
+    ];
+
+    // a Move represents one move in the solution to the puzzle.
+    //   jumper: the position of the peg being moved
+    //   jumpee: the position of the peg being jumped over
+    //   dest: the position that the jumper is moving into
     var Move = tripeg_logic.Move = function(jumper, jumpee, dest) {
         var obj = {};
         obj.jumper = jumper;
@@ -87,16 +101,23 @@
         return obj;
     };
 
+    // the BoardContext object caches a few computations related to
+    // solving any board with N rows
     var BoardContext = tripeg_logic.BoardContext = function(N) {
         var obj = {};
         var i,j;
         obj.N = N;
+        // `positions` is an array of the positions of all the slots on
+        // a board with N rows:
         obj.positions = [];
         for (i=0; i<N; ++i) {
             for (j=0; j<=i; ++j) {
                 obj.positions.push(Position(i,j));
             }
         }
+        // convenience method for looping over all positions o
+        // an N-row board.  `posfunc(p)` is called for each Position,
+        // and `rowfunc(i)` (optional) is called for each row.
         obj.each_position = function(posfunc,rowfunc) {
             var k,
             n = 0,
@@ -113,24 +134,26 @@
                 posfunc(this.positions[k]);
             }
         };
+        // return true if a position is valid for a board with N rows; false if not:
         obj.position_is_valid = function(p) {
             return (p.i>=0 && p.i<this.N && p.j>=0 && p.j<=p.i);
         };
+        // return an array of all moves that might conceivably be possible for
+        // a peg in Position p on a board with N rows:
         obj.all_moves = function(p) {
             var moves = [],
-            i, dir, dest;
-            for (i=0; i<six_directions.length; ++i) {
-                dir = six_directions[i];
-                dest = p.add(dir.times(2));
+            i, offset, dest;
+            for (i=0; i<six_neighbors.length; ++i) {
+                offset = six_neighbors[i];
+                dest = p.add(offset.times(2));
                 if (this.position_is_valid(dest)) {
-                    moves.push(Move(p, p.add(dir), dest));
+                    moves.push(Move(p, p.add(offset), dest));
                 }
             }
             return moves;
         };
-        obj.create_board = function() {
-            return Board(this);
-        };
+        // pre-compute a nested array giving all possible moves for each position
+        // on the board:
         obj.all_moves_for_position = [];
         for (i=0; i<N; ++i) {
             obj.all_moves_for_position[i] = [];
@@ -141,24 +164,36 @@
         return obj;
     };
 
+    // The Board object represents a puzzle board with N rows.  Create a new board
+    // either by calling `Board(N)`, where N is the number of rows, or
+    // `Board(boardContext)`, where boardContext is a BoardContext object.
     var Board = tripeg_logic.Board = function(arg) {
-        var boardContext;
+        var i, j, boardContext, obj = {};
+
+        // set the boardContext object and number of rows N
         if (typeof(arg)==="number") {
             boardContext = BoardContext(arg);
         } else {
             boardContext = arg;
         }
-        var obj = {};
-        var i,j;
         obj.boardContext = boardContext;
         obj.N = boardContext.N;
+
+        // the board stores pegs in a nested array called `pegs`; the
+        // peg in Position(i,j) is stored at pegs[i][j].  The actual
+        // values stored in the pegs array don't matter --- they can
+        // be anything. A value of `undefined` means that a position
+        // has no peg in it.  Initialize the array here to all
+        // `undefined` values:
         obj.pegs = [];
         boardContext.each_position(function(p) {
             obj.pegs[p.i][p.j] = undefined;
         }, function(i) {
             obj.pegs[i] = [];
         });
+        // numPegs always stored the total number of pegs on the board
         obj.numPegs = 0;
+        // insert a peg in a position
         obj.insert_peg = function(p,peg) {
             if (this.boardContext.position_is_valid(p)) {
                 if (peg === undefined) { peg = true; }
@@ -174,6 +209,7 @@
                 this.pegs[p.i][p.j] = peg;
             }
         };
+        // remove a peg from a position
         obj.remove_peg = function(p) {
             if (this.boardContext.position_is_valid(p)) {
                 if (this.pegs[p.i][p.j] !== undefined) {
@@ -183,6 +219,7 @@
                 this.pegs[p.i][p.j] = undefined;
             }
         };
+        // return the peg at a given position
         obj.get_peg = function(p) {
             if (this.boardContext.position_is_valid(p)) {
                 if (this.pegs[p.i] !== undefined) {
@@ -191,6 +228,7 @@
             }
             return undefined;
         };
+        // return true if a position has a peg in it, false otherwise
         obj.contains_peg = function(p) {
             if (this.boardContext.position_is_valid(p)) {
                 if (this.pegs[p.i] !== undefined) {
@@ -213,6 +251,7 @@
             arr.push("]");
             return arr.join("");
         };
+        // insert a peg (the same peg) into every position on the board except one:
         obj.insert_peg_everywhere_except = function(pos,peg) {
             var board = this;
             this.each_position(function(p) {
@@ -221,6 +260,8 @@
                 }
             });
         };
+        // return true if a given move is allowed given the current peg positions
+        // on the board:
         obj.move_allowed = function(move) {
             var ans = (
                 this.contains_peg(move.jumper)
@@ -230,16 +271,7 @@
             );
             return (ans);
         };
-        obj.move = function(move) {
-            this.pegs[move.dest.i][move.dest.j] = this.pegs[move.jumper.i][move.jumper.j];
-            this.pegs[move.jumper.i][move.jumper.j] = undefined;
-            // checking for undefined jumpee allows for moves that don't remove a peg, as in what happens
-            // when choosing a different initial empty hole -- i.e. just move a peg from one hole to another
-            if (move.jumpee !== undefined) {
-                this.pegs[move.jumpee.i][move.jumpee.j] = undefined;
-            }
-            this.numPegs = this.numPegs - 1;
-        };
+        // return an exact copy of this board, using the same BoardContext
         obj.clone = function() {
             var b = Board(this.boardContext), i, j, p;
             var board = this;
@@ -250,6 +282,27 @@
             });
             return b;
         };
+        // Create a new board which is obtained by cloning this board and then applying
+        // a given move to it, i.e. move the peg that is currently in the
+        // jumper position to the dest position, and remove the peg from the jumpee position.
+        // The original board (this) is left unchanged.
+        obj.move = function(move) {
+            var board = this.clone();
+            board.insert_peg(move.dest, board.get_peg(move.jumper));
+            board.remove_peg(move.jumper);
+            if (move.jumpee !== undefined) {
+                // only remove the jumpee peg if the move actually has a jumpee that
+                // is not `undefined`.  In general, real moves in the puzzle always
+                // have a jumpee, but allowing an undefined jumpee allows the graphics
+                // code in tripeg-graphics.js to use the same animation code for moving a peg
+                // to the empty slot before the puzzle animation begins that it uses
+                // to animate the moves of the solution.
+                board.remove_peg(move.jumpee);
+            }
+            return board;
+        };
+        // return an array of all possible moves that can be made on the board, considering
+        // the current peg locations
         obj.possible_moves = function() {
             var moves = [], i, j, k;
             var board = this;
@@ -265,11 +318,13 @@
             });
             return moves;
         };
+        // convenience method to iterate over all board positions; this simply calls
+        // the BoardContext's each_position method:
         obj.each_position = function(f,g) {
             this.boardContext.each_position(f,g);
         };
 
-
+        // return the Position of the first unoccupied peg slot on this board:
         obj.get_empty_position = function() {
             var i, j, p;
             for (i=0; i<this.N; ++i) {
@@ -281,29 +336,32 @@
             return undefined;
         };
 
-
-        
-        // return a list of moves to solve this board, if possible
-        // return the empty list [] if the board is already solved
-        // return `undefined` if the board cannot be solved
+        // Return a list of moves to solve this board, if possible.
+        // Return the empty list [] if the board is already solved.
+        // Return `undefined` if the board cannot be solved.
         obj.solve = function() {
+            var i,
+                possible_moves,
+                solution;
+
             if (this.numPegs === 1) {
+                // if only 1 peg remains, board is solved
                 return [];
             }
-            var i;
-            var possible_moves = this.possible_moves();
-            var move;
+            // find all moves currently possible on the board
+            possible_moves = this.possible_moves();
             for (i=0; i<possible_moves.length; ++i) {
-                move = possible_moves[i];
-                var b = this.clone();
-                b.move(move);
-                var moves = b.solve();
-                if (moves !== undefined) {
-                    var answer = moves.slice(0);
-                    answer.push(move);
-                    return answer;
+                // look for a solution to the board obtained by applying the i-th move
+                solution = this.move(possible_moves[i]).solve();
+                if (solution !== undefined) {
+                    // if we found a solution, then the solution to the original board
+                    // is that solution, with the i-th move inserted at the beginning
+                    // of the list.
+                    solution.splice(0,0,possible_moves[i]);
+                    return solution;
                 }
             }
+            // if no moves are possible, the board can't be solved
             return undefined;
         };
 

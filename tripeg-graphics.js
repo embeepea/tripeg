@@ -251,7 +251,7 @@
             };
             move.end = function() {
                 this.moving_peg.moving = false;
-                board.move(this);
+                board = board.move(this);
             };
             return move;
         };
@@ -327,7 +327,6 @@
                 nosolutionfunc();
                 return;
             }
-            tmoves = tmoves.reverse();
             for (i=0; i<tmoves.length; ++i) {
                 var tm = tmoves[i];
                 animator.add_action(this.Move(tm.jumper, tm.jumpee, tm.dest));
