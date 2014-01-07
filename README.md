@@ -42,14 +42,12 @@ The code files are:
   
 * **requestanimationframe.js**
 
-  This is Paul Irish's requestAnimationFrame polyfill, from
-  http://www.paulirish.com/2011/requestanimationframe-for-smart-animating
+  This is Paul Irish's [requestAnimationFrame polyfill](http://www.paulirish.com/2011/requestanimationframe-for-smart-animating).
   The code in *animator.js* uses requestAnimationFrame to cause the
   browser to call custom drawing code on the next screen update.
 
 * **spec/**
 
-  This subdirectory contains a suite of
-  (Jasmine)[http://pivotal.github.io/jasmine/] unit tests for
-  *tripeg-logic.js*; to run them, simply view *spec/index.html* file
+  This subdirectory contains a suite of [Jasmine](http://pivotal.github.io/jasmine/)
+  unit tests for *tripeg-logic.js*; to run them, simply view *spec/index.html* file
   in a browser.
