@@ -3,21 +3,22 @@
  * state.  This file has no external dependencies and does not do any
  * graphics or DOM manipulation.  The basic usage is as follows:
  *
- *    1. call `Board(N)` to create a "Board" object having N rows
+ *    1. call `Board(N)` to create a Board object representing a puzzle
+ *       having N rows (the normal puzzle has 5 rows)
  *    2. populate the board with "pegs"; the easiest way to do this is
  *       by calling its `insert_peg_everywhere_except(pos,peg)`
  *       method, where `pos` is a `Position` object giving one
- *       location to be left empty, and `peg` is a value to be
- *       inserted into every other position on the board (the value of
+ *       slot to be left empty, and `peg` is a value to be
+ *       inserted into every other slot on the board (the value of
  *       the peg doesn't matter; any value other than `undefined` will
  *       do).
  *    3. call the Board's `solve` method to find a solution; `solve`
  *       returns an array of `Move` objects, each of which represents
  *       a single peg jump/removal step.
  *
- * For example, here's a little program that you can run with node.js
- * to print out the solution to a 5-row board (save this to a file
- * called solve.js and type `node solve.js`):
+ * For example, here's a little program that you can run from the
+ * command line (e.g. with node.js) to print out the solution to a
+ * 5-row board:
  *
  *    window = {};
  *    require('./tripeg-logic');
@@ -106,17 +107,17 @@
     var BoardContext = tripeg_logic.BoardContext = function(N) {
         var obj = {};
         var i,j;
-        obj.N = N;
+        obj.numRows = N;
         // `positions` is an array of the positions of all the slots on
         // a board with N rows:
         obj.positions = [];
-        for (i=0; i<N; ++i) {
+        for (i=0; i<obj.numRows; ++i) {
             for (j=0; j<=i; ++j) {
                 obj.positions.push(Position(i,j));
             }
         }
-        // convenience method for looping over all positions o
-        // an N-row board.  `posfunc(p)` is called for each Position,
+        // convenience method for looping over all positions on
+        // a board.  `posfunc(p)` is called for each Position,
         // and `rowfunc(i)` (optional) is called for each row.
         obj.each_position = function(posfunc,rowfunc) {
             var k,
@@ -134,12 +135,12 @@
                 posfunc(this.positions[k]);
             }
         };
-        // return true if a position is valid for a board with N rows; false if not:
+        // return true if a position is valid for a board with numRows rows; false if not:
         obj.position_is_valid = function(p) {
-            return (p.i>=0 && p.i<this.N && p.j>=0 && p.j<=p.i);
+            return (p.i>=0 && p.i<this.numRows && p.j>=0 && p.j<=p.i);
         };
         // return an array of all moves that might conceivably be possible for
-        // a peg in Position p on a board with N rows:
+        // a peg in Position p on a board with numRows rows:
         obj.all_moves = function(p) {
             var moves = [],
             i, offset, dest;
@@ -155,29 +156,29 @@
         // pre-compute a nested array giving all possible moves for each position
         // on the board:
         obj.all_moves_for_position = [];
-        for (i=0; i<N; ++i) {
+        for (i=0; i<obj.numRows; ++i) {
             obj.all_moves_for_position[i] = [];
             for (j=0; j<=i; ++j) {
-                obj.all_moves_for_position[i].push(obj.all_moves(Position(i,j),N));
+                obj.all_moves_for_position[i].push(obj.all_moves(Position(i,j),obj.numRows));//xyzzy???
             }
         }
         return obj;
     };
 
-    // The Board object represents a puzzle board with N rows.  Create a new board
+    // The Board object represents a puzzle board with numRows rows.  Create a new board
     // either by calling `Board(N)`, where N is the number of rows, or
     // `Board(boardContext)`, where boardContext is a BoardContext object.
     var Board = tripeg_logic.Board = function(arg) {
         var i, j, boardContext, obj = {};
 
-        // set the boardContext object and number of rows N
+        // set the boardContext object and number of rows numRows
         if (typeof(arg)==="number") {
             boardContext = BoardContext(arg);
         } else {
             boardContext = arg;
         }
         obj.boardContext = boardContext;
-        obj.N = boardContext.N;
+        obj.numRows = boardContext.numRows;
 
         // the board stores pegs in a nested array called `pegs`; the
         // peg in Position(i,j) is stored at pegs[i][j].  The actual
@@ -239,14 +240,14 @@
         };
         obj.toString = function() {
             var arr = [ "[" ];
-            for (i=0; i<this.N; ++i) {
+            for (i=0; i<this.numRows; ++i) {
                 arr.push("[");
                 for (j=0; j<=i; ++j) {
                     arr.push(this.get_peg(Position(i,j)));
                     if (j<i) { arr.push(","); }
                 }
                 arr.push("]");
-                if (i<this.N-1) { arr.push(","); }
+                if (i<this.numRows-1) { arr.push(","); }
             }
             arr.push("]");
             return arr.join("");
@@ -327,7 +328,7 @@
         // return the Position of the first unoccupied peg slot on this board:
         obj.get_empty_position = function() {
             var i, j, p;
-            for (i=0; i<this.N; ++i) {
+            for (i=0; i<this.numRows; ++i) {
                 for (j=0; j<=i; ++j) {
                     var p = Position(i,j);
                     if (!this.contains_peg(p)) { return p; }
