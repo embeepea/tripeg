@@ -116,6 +116,10 @@
                 obj.positions.push(Position(i,j));
             }
         }
+        // return the total number of peg slots on a board with numRows rows
+        obj.num_slots = function() {
+            return this.numRows * (this.numRows + 1) / 2;
+        };
         // convenience method for looping over all positions on
         // a board.  `posfunc(p)` is called for each Position,
         // and `rowfunc(i)` (optional) is called for each row.
@@ -192,8 +196,8 @@
         }, function(i) {
             obj.pegs[i] = [];
         });
-        // numPegs always stored the total number of pegs on the board
-        obj.numPegs = 0;
+        // currentPegCount always stored the total number of pegs on the board
+        obj.currentPegCount = 0;
         // insert a peg in a position
         obj.insert_peg = function(p,peg) {
             if (this.boardContext.position_is_valid(p)) {
@@ -205,7 +209,7 @@
                 }
                 if (this.pegs[p.i][p.j] === undefined) {
                     // only increment peg count if the position was unoccupied
-                    this.numPegs = this.numPegs + 1;
+                    this.currentPegCount = this.currentPegCount + 1;
                 }
                 this.pegs[p.i][p.j] = peg;
             }
@@ -215,7 +219,7 @@
             if (this.boardContext.position_is_valid(p)) {
                 if (this.pegs[p.i][p.j] !== undefined) {
                     // only decrement peg count if the position was occupied
-                    this.numPegs = this.numPegs - 1;
+                    this.currentPegCount = this.currentPegCount - 1;
                 }
                 this.pegs[p.i][p.j] = undefined;
             }
@@ -345,7 +349,7 @@
                 possible_moves,
                 solution;
 
-            if (this.numPegs === 1) {
+            if (this.currentPegCount === 1) {
                 // if only 1 peg remains, board is solved
                 return [];
             }

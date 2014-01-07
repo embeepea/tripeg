@@ -111,7 +111,19 @@ describe("Tripeg Logic", function () {
             expect(typeof(BoardContext)).toBe("function");
             var bc = BoardContext(8);
             expect(bc).not.toBeUndefined();
-            expect(bc.N).toEqual(8);
+            expect(bc.numRows).toEqual(8);
+        });
+
+        describe("num_slots method", function() {
+            it("should return the correct number of slots for a 4-row board", function() {
+                expect(BoardContext(4).num_slots()).toEqual(10);
+            });
+            it("should return the correct number of slots for a 5-row board", function() {
+                expect(BoardContext(5).num_slots()).toEqual(15);
+            });
+            it("should return the correct number of slots for a 6-row board", function() {
+                expect(BoardContext(6).num_slots()).toEqual(21);
+            });
         });
 
         describe("position_is_valid method", function() {
@@ -293,9 +305,9 @@ describe("Tripeg Logic", function () {
             expect(typeof(Board)).toBe("function");
             var b = Board(8);
             expect(b).not.toBeUndefined();
-            expect(b.N).toEqual(8);
+            expect(b.numRows).toEqual(8);
         });
-        describe("insert_peg / contain_peg / get_peg / numPegs", function() {
+        describe("insert_peg / contain_peg / get_peg / currentPegCount", function() {
             it("insert_peg method should exist", function() {
                 var b = Board(5);
                 expect(typeof(b.insert_peg)).toBe("function");
@@ -308,13 +320,13 @@ describe("Tripeg Logic", function () {
                 var b = Board(5);
                 expect(typeof(b.contains_peg)).toBe("function");
             });
-            it("numPegs property should exist", function() {
+            it("currentPegCount property should exist", function() {
                 var b = Board(5);
-                expect(typeof(b.numPegs)).toBe("number");
+                expect(typeof(b.currentPegCount)).toBe("number");
             });
-            it("numPegs should initially be 0", function() {
+            it("currentPegCount should initially be 0", function() {
                 var b = Board(5);
-                expect(b.numPegs).toBe(0);
+                expect(b.currentPegCount).toBe(0);
             });
             it("get_peg/contains_peg should always return undefined/false if no pegs have been inserted", function() {
                 var b = Board(5), i, j;
@@ -331,11 +343,11 @@ describe("Tripeg Logic", function () {
                 expect(b.get_peg(Position(2,2))).toEqual(13);
                 expect(b.contains_peg(Position(2,2))).toEqual(true);
             });
-            it("numPegs should change from 0 to 1 when first peg is inserted", function() {
+            it("currentPegCount should change from 0 to 1 when first peg is inserted", function() {
                 var b = Board(5);
-                expect(b.numPegs).toBe(0);
+                expect(b.currentPegCount).toBe(0);
                 b.insert_peg(Position(2,2),13);
-                expect(b.numPegs).toBe(1);
+                expect(b.currentPegCount).toBe(1);
             });
             it("after inserting just 1 peg, get_peg/contains/peg should still return undefined/false everywhere else", function() {
                 var b = Board(5);
@@ -353,29 +365,29 @@ describe("Tripeg Logic", function () {
                 }
             });
 
-            it("numPegs should always reflect the correct number of pegs", function() {
+            it("currentPegCount should always reflect the correct number of pegs", function() {
                 var b = Board(5);
-                expect(b.numPegs).toBe(0);
+                expect(b.currentPegCount).toBe(0);
                 b.insert_peg(Position(2,2));
-                expect(b.numPegs).toBe(1);
+                expect(b.currentPegCount).toBe(1);
                 b.insert_peg(Position(3,2));
-                expect(b.numPegs).toBe(2);
+                expect(b.currentPegCount).toBe(2);
                 b.remove_peg(Position(3,2));
-                expect(b.numPegs).toBe(1);
+                expect(b.currentPegCount).toBe(1);
                 b.insert_peg(Position(3,2));
-                expect(b.numPegs).toBe(2);
+                expect(b.currentPegCount).toBe(2);
                 b.insert_peg(Position(4,1));
-                expect(b.numPegs).toBe(3);
+                expect(b.currentPegCount).toBe(3);
                 b.insert_peg(Position(4,1));
-                expect(b.numPegs).toBe(3);
+                expect(b.currentPegCount).toBe(3);
                 b.remove_peg(Position(4,1));
-                expect(b.numPegs).toBe(2);
+                expect(b.currentPegCount).toBe(2);
                 b.remove_peg(Position(3,2));
-                expect(b.numPegs).toBe(1);
+                expect(b.currentPegCount).toBe(1);
                 b.remove_peg(Position(2,2));
-                expect(b.numPegs).toBe(0);
+                expect(b.currentPegCount).toBe(0);
                 b.remove_peg(Position(2,2));
-                expect(b.numPegs).toBe(0);
+                expect(b.currentPegCount).toBe(0);
             });
 
 
@@ -459,31 +471,31 @@ describe("Tripeg Logic", function () {
                 var b = Board(5);
                 b.insert_peg(Position(0,0));
                 b.insert_peg(Position(1,0));
-                expect(b.numPegs).toBe(2);
+                expect(b.currentPegCount).toBe(2);
                 var m = Move(Position(0,0),Position(1,0),Position(2,0));
                 b = b.move(m);
                 expect(b.contains_peg(Position(0,0))).toBe(false);
-                expect(b.numPegs).toBe(1);
+                expect(b.currentPegCount).toBe(1);
             });
             it("should correctly remove the jumpee position", function() {
                 var b = Board(5);
                 b.insert_peg(Position(0,0));
                 b.insert_peg(Position(1,0));
-                expect(b.numPegs).toBe(2);
+                expect(b.currentPegCount).toBe(2);
                 var m = Move(Position(0,0),Position(1,0),Position(2,0));
                 b = b.move(m);
-                expect(b.numPegs).toBe(1);
+                expect(b.currentPegCount).toBe(1);
                 expect(b.contains_peg(Position(1,0))).toBe(false);
             });
             it("should correctly insert the destination position", function() {
                 var b = Board(5);
                 b.insert_peg(Position(0,0));
                 b.insert_peg(Position(1,0));
-                expect(b.numPegs).toBe(2);
+                expect(b.currentPegCount).toBe(2);
                 var m = Move(Position(0,0),Position(1,0),Position(2,0));
                 b = b.move(m);
                 expect(b.contains_peg(Position(2,0))).toBe(true);
-                expect(b.numPegs).toBe(1);
+                expect(b.currentPegCount).toBe(1);
             });
 
         });
