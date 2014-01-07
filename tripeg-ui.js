@@ -1,15 +1,18 @@
+/*
+ * This file works along with the accompanying index.html file to create a graphics
+ * display and user interface for the triangle puzzle.  This files uses jQuery and
+ * tripeg-graphics.js.
+ */
 (function($) {
 
-    var tg = window.tripeg_graphics;
-
-    var trGraphics;
-
-    var peg_click_allowed = true;
-
-    var maxrows = 6;
-    var minrows = 4;
-
-    var click_a_peg_message = "Click a peg to change the initial empty position";
+    var tg = window.tripeg_graphics,
+        peg_click_allowed = true,
+        maxrows = 6,
+        minrows = 4,
+        click_a_peg_message = "Click a peg to change the initial empty position",
+        highlighted_peg = undefined,
+        highlighted_pos = undefined,
+        trGraphics;
 
     function display_message(msg) {
         $('#message').html(msg);
@@ -26,7 +29,10 @@
         }, 500);
     }
 
-    function ui_reset() {
+    function reset() {
+        // Reset the canvas size, and the size of its container, based on the computed
+        // size in the trGraphics object.  And then reset the trGraphics object, which
+        // causes it to draw a fresh board.
         $('#thecanvas').attr('width', trGraphics.canvas_width);
         $('#thecanvas').attr('height', trGraphics.canvas_height);
         $('#container').css('width', (trGraphics.canvas_width) + 'px');
@@ -34,12 +40,12 @@
     }
 
     function change_rows(incr) {
+        // change the number of rows in the board
         var N = trGraphics.get_rows();
         N = N + incr;
         if (N >= minrows && N <= maxrows) {
             trGraphics.set_rows(N);
-            ui_reset();
-            trGraphics.request_draw();
+            reset();
         }
         if (N <= minrows) {
             $('#minus').prop('disabled', true);
@@ -61,7 +67,7 @@
         $('#splash-message-container').hide();
 
         trGraphics = tg.TripegGraphics($('#thecanvas')[0].getContext("2d"), 5);
-        ui_reset();
+        reset();
 
         display_message(click_a_peg_message);
 
@@ -70,7 +76,7 @@
             clear_message();
             $('#play').prop('disabled', true);
             peg_click_allowed = false;
-            $('#message').html("Thinking...");
+            display_message("Thinking...");
             setTimeout(function() {
                 trGraphics.solve({
                     'done' : function() {
@@ -83,7 +89,7 @@
                         peg_click_allowed = true;
                     },
                     'timelog' : function (ms) {
-                        $('#message').html('Solution computed in ' + ms + ' ms');
+                        display_message("Solution computed in " + ms + " ms");
                     }
                 });
             }, 10);
@@ -92,6 +98,7 @@
             trGraphics.reset();
             display_message(click_a_peg_message);
             $('#play').prop('disabled', false);
+            $('#rotate-left').prop('disabled', true);
             peg_click_allowed = true;
         }).prop('disabled', true);
 
@@ -101,9 +108,6 @@
         $('#minus').click(function() {
             change_rows(-1);
         });
-
-        var highlighted_peg = undefined;
-        var highlighted_pos = undefined;
 
         $('#thecanvas').click(function() {
             if (highlighted_peg !== undefined) {
@@ -117,7 +121,6 @@
             if (peg_click_allowed) {
                 var peg_is_highlighted = false;
                 if (trGraphics.point_in_triangle(event.offsetX, event.offsetY)) {
-                    //var p = tripeg.point_in_peg(event.offsetX, event.offsetY);
                     var p = trGraphics.peg_position_under_point([event.offsetX, event.offsetY]);
                     if (p) {
                         peg_is_highlighted = true;

@@ -277,7 +277,7 @@
         };
 
         obj.reset = function() {
-            // reset and redraw after puzzle is solved
+            // reset and redraw after puzzle is solved, or after the number of rows has changed
             board = tripeg_logic.Board(numRows);
             var k=0;
             board.each_position(function(p) {
