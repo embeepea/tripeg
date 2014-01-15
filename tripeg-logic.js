@@ -163,7 +163,7 @@
         for (i=0; i<obj.numRows; ++i) {
             obj.all_moves_for_position[i] = [];
             for (j=0; j<=i; ++j) {
-                obj.all_moves_for_position[i].push(obj.all_moves(Position(i,j),obj.numRows));//xyzzy???
+                obj.all_moves_for_position[i].push(obj.all_moves(Position(i,j)));
             }
         }
         return obj;
