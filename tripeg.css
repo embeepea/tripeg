@@ -58,7 +58,29 @@
 
 #footer {
   width: 100%;
-  text-align: right;
   margin-top: 30px;
-  padding-right: 30px;
+  padding-bottom: 30px;
+  padding-left: 50px;
+  padding-right: 50px;
+}
+
+.left {
+  float: left;
+  text-align: left;
+}
+
+.right {
+  float: right;
+  text-align: right;
+}
+
+.puzzleimg, .puzzleimg img {
+  float: right;
+}
+
+.description {
+  margin: auto;
+  padding-top: 20px;
+  padding-left: 50px;
+  padding-right: 50px;
 }

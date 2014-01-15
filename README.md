@@ -1,7 +1,7 @@
-Triangle Peg Puzzle
-===================
+Triangle Peg Solitaire
+======================
 
-This is a program that I wrote just for kicks to solve this triangle peg puzzle:
+This is a program that I wrote just for kicks to solve triangle peg solitaire:
 
 <p align="center">
   <img src="./puzzle.jpg?raw=true"/>
