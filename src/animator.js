@@ -44,65 +44,64 @@
  *   http://www.paulirish.com/2011/requestanimationframe-for-smart-animating
  * Any JS code using this file should load requestanimationframe.js first.
  */
-(function() {
-    var animator = window.animator = {};
-    
-    function getopt(options, opt, defaultValue) {
-        return (options && options[opt]!==undefined) ? options[opt] : defaultValue;
-    }
 
-    animator.Animator = function(options) {
-        var frameDelayMS = getopt(options, 'frameDelayMS', 10);
-        var interActionDelayMS = getopt(options, 'interActionDelayMS', 150);
-        var draw = getopt(options, 'draw', function() {});
+var animator = module.exports = {};
+require('./requestanimationframe');
 
-        var actions = [];
+function getopt(options, opt, defaultValue) {
+    return (options && options[opt]!==undefined) ? options[opt] : defaultValue;
+}
 
-        var obj = {};
+animator.Animator = function(options) {
+    var frameDelayMS = getopt(options, 'frameDelayMS', 10);
+    var interActionDelayMS = getopt(options, 'interActionDelayMS', 150);
+    var draw = getopt(options, 'draw', function() {});
 
-        obj.add_action = function(action) {
-            var animator_action = {};
-            animator_action.begin = function() {
-                action.begin();
-                animator_action.step();
-            };
-            animator_action.step = function() {
-                var done = (action.step === undefined) || action.step();
-                if (done) {
-                    animator_action.end();
-                } else {
-                    setTimeout(function() {
-                        requestAnimationFrame(function() {
-                            draw();
-                            animator_action.step();
-                        });
-                    }, frameDelayMS);
-                }
-            };
-            animator_action.end = function() {
-                if (action.end !== undefined) {
-                    action.end();
-                }
-                requestAnimationFrame(function() {
-                    draw();
-                    setTimeout(function() { obj.play() }, interActionDelayMS);
-                });
-            };
-            actions.push(animator_action);
+    var actions = [];
+
+    var obj = {};
+
+    obj.add_action = function(action) {
+        var animator_action = {};
+        animator_action.begin = function() {
+            action.begin();
+            animator_action.step();
         };
-
-        obj.play = function() {
-            if (actions.length > 0) {
-                actions.shift().begin();
+        animator_action.step = function() {
+            var done = (action.step === undefined) || action.step();
+            if (done) {
+                animator_action.end();
+            } else {
+                setTimeout(function() {
+                    requestAnimationFrame(function() {
+                        draw();
+                        animator_action.step();
+                    });
+                }, frameDelayMS);
             }
         };
-
-        obj.request_draw = function() {
-            requestAnimationFrame(function() { draw(); });
+        animator_action.end = function() {
+            if (action.end !== undefined) {
+                action.end();
+            }
+            requestAnimationFrame(function() {
+                draw();
+                setTimeout(function() { obj.play() }, interActionDelayMS);
+            });
         };
-
-        return obj;
-
+        actions.push(animator_action);
     };
 
-}());
+    obj.play = function() {
+        if (actions.length > 0) {
+            actions.shift().begin();
+        }
+    };
+
+    obj.request_draw = function() {
+        requestAnimationFrame(function() { draw(); });
+    };
+
+    return obj;
+
+};

@@ -1,11 +1,12 @@
 /*global describe, it, beforeEach, expect, xit, jasmine */
 /*jshint laxbreak:true */
 
+var tripeg_logic = require('../src/tripeg-logic');
+
 describe("Tripeg Logic", function () {
     "use strict";
 
-    var tripeg_logic = window.tripeg_logic,
-        Offset = tripeg_logic.Offset,
+    var Offset = tripeg_logic.Offset,
         Position = tripeg_logic.Position,
         Move = tripeg_logic.Move,
         BoardContext = tripeg_logic.BoardContext,

@@ -1,0 +1,17 @@
+{
+  "name": "tripeg",
+  "version": "1.0.0",
+  "description": "Triangle Peg Solitaire",
+  "devDependencies": {
+    "browserify": "~3.20.0",
+    "grunt": "~0.4.2",
+    "grunt-browserify": "~1.3.0",
+    "grunt-jasmine-node": "~0.1.0",
+    "uglifyify": "~1.1.0"
+  },
+  "dependencies": {},
+  "main": "tripeg-ui.js",
+  "scripts": {},
+  "author": "mbp",
+  "license": "BSD"
+}
