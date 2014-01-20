@@ -20,9 +20,7 @@
  * command line (e.g. with node.js) to print out the solution to a
  * 5-row board:
  *
- *    window = {};
- *    require('./tripeg-logic');
- *    tl = window.tripeg_logic;
+ *    tl = require('./tripeg-logic');
  *    board = tl.Board(5);
  *    board.insert_peg_everywhere_except(tl.Position(0,0),true);
  *    moves = board.solve();
