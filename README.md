@@ -51,7 +51,7 @@ The code files are:
 
 * [**spec/**](https://github.com/embeepea/tripeg/blob/master/spec)
 
-  This subdirectory contains a suite of [Jasmine](http://pivotal.github.io/jasmine/)
+  This subdirectory contains a suite of [Jasmine](https://jasmine.github.io/)
   unit tests for *tripeg-logic.js*; to run them:
   
     ```
